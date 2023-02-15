@@ -1,6 +1,6 @@
 {
   "name": "react-native-detect-document",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "test",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -30,7 +30,6 @@
     "test": "jest",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
-    "prepack": "bob build",
     "release": "release-it",
     "example": "yarn --cwd example",
     "bootstrap": "yarn example && yarn install && yarn example pods",
@@ -41,7 +40,10 @@
     "ios",
     "android"
   ],
-  "repository": "https://github.com/hm1061998/react-native-detect-document",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hm1061998/react-native-detect-document.git"
+  },
   "author": "Hoàng Minh <hm1061998@gmail.com> (https://github.com/hm1061998)",
   "license": "MIT",
   "bugs": {
@@ -159,5 +161,8 @@
         }
       ]
     ]
+  },
+  "directories": {
+    "example": "example"
   }
 }

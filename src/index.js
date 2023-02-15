@@ -2,7 +2,7 @@
 
 
 import { NativeModules, Platform } from 'react-native';
-import CropperView from './CropperView';
+import RNCropperView from './CropperView';
 
 
 const LINKING_ERROR =
@@ -22,16 +22,18 @@ const RnDetectDocument = NativeModules.RnDetectDocument
     }
   );
 
-function findDocumentCorrers(path) {
+export function findDocumentCorrers(path) {
   return RnDetectDocument.findDocumentCorrers(path);
 }
 
-function cropper(path, points, quality = 100) {
+export function cropper(path, points, quality = 100) {
   return RnDetectDocument.cropper(path, points, quality);
 }
 
+export const CropperView = RNCropperView
+
 export default {
-  CropperView,
+  RNCropperView : CropperView,
   findDocumentCorrers,
-  cropper
+  cropper,
 };

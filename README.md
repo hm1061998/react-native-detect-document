@@ -11,11 +11,11 @@ npm install react-native-detect-document
 ## Usage
 
 ```js
-import { multiply } from 'react-native-detect-document';
+import { findDocumentCorrers } from 'react-native-detect-document';
 
 // ...
 
-const result = await multiply(3, 7);
+const result = await findDocumentCorrers(imagePath);
 ```
 
 ## Contributing

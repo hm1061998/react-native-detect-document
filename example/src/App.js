@@ -8,13 +8,16 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-// import { findDocumentCorrers, CropperView } from 'rn-detect-document';
+import RNDDM from 'react-native-detect-document';
+
 // import CropperView from 'rn-detect-document/src/ImageCropper';
-import { findDocumentCorrers, CropperView } from '../../src';
+// import { findDocumentCorrers, CropperView } from '../../src';
 // import CropperView from '../../src/ImageCropper/index'
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 import ImgToBase64 from 'react-native-image-base64';
-// import { CropperView } from "../../src";
+import  CropperView  from "./CropperView";
+
+const { findDocumentCorrers } = RNDDM
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -24,7 +27,7 @@ export default function App() {
   const [resultCrop, setResultCrop] = React.useState(null);
   const customCrop = React.useRef();
 
-  console.log('CropperView',CropperView);
+  // console.log('CropperView', RNDDM);
 
   const takePicture = async () => {
     try {
@@ -56,9 +59,9 @@ export default function App() {
   };
 
   const crop = async () => {
-    console.log('loading');
+    // console.log('loading');
     await customCrop.current.crop();
-    console.log('end');
+    // console.log('end');
   };
 
   const updateImage = (res, coordinates) => {
