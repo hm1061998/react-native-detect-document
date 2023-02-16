@@ -107,7 +107,7 @@ export default function App() {
           handlerColor="rgba(20,150,160, 1)"
           enablePanStrict={false}
         />
-        <View style={{ flexDirection: 'row', paddingVertical: 10, height: 50 }}>
+        <View style={{ flexDirection: 'row', paddingVertical: 10, height: 300 }}>
           <TouchableOpacity onPress={crop} style={{ flex: 1 }}>
             <Text>CROP IMAGE</Text>
           </TouchableOpacity>

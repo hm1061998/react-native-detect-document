@@ -15,11 +15,9 @@ import { cropper } from 'react-native-detect-document'
 
 const AnimatedPolygon = Animated.createAnimatedComponent(Polygon);
 const screenWidth = Dimensions.get('window').width;
-const screenHeight = Dimensions.get('window').height;
 
 const getViewHeight = (width, height, layout) => {
   const imageRatio = width / height;
-
   let _viewHeight = 0;
   if (height > width) {
     // if user takes the photo in portrait
@@ -28,15 +26,27 @@ const getViewHeight = (width, height, layout) => {
     // if user takes the photo in landscape
     _viewHeight = Math.round(screenWidth * imageRatio);
   }
-  _viewHeight = Math.min(_viewHeight, screenHeight);
+  _viewHeight = Math.min(_viewHeight, layout.height);
   _viewHeight -= 50;
 
-  if (_viewHeight > layout.height - 50) {
-    _viewHeight = layout.height - 50;
-  }
 
   return _viewHeight;
 };
+
+const getViewWidth = (width, height, viewHeight) => {
+  const imageRatio = width / height;
+  let _viewWidth = 0;
+  if (height > width) {
+    // if user takes the photo in portrait
+    _viewWidth = Math.round(viewHeight * imageRatio) + 50
+  } else {
+    // if user takes the photo in landscape
+    _viewWidth = Math.round(viewHeight / imageRatio) + 50
+  }
+  _viewWidth -= 50;
+
+  return _viewWidth;
+}
 
 const Cropper = forwardRef(
   (
@@ -55,7 +65,7 @@ const Cropper = forwardRef(
     ref
   ) => {
     const viewHeight = getViewHeight(width, height, layout);
-    const viewWidth = screenWidth - 50;
+    const viewWidth = getViewWidth(width, height, viewHeight)
 
     const imageCoordinatesToViewCoordinates = (corner) => {
       const x = corner.x * (viewWidth / width);
