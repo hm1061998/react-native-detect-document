@@ -9,9 +9,8 @@ import {
 } from 'react-native';
 import RNDDM from 'react-native-detect-document';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
-import CropperView from "./CropperView";
-const { findDocumentCorrers } = RNDDM
-
+// import CropperView from "./CropperView";
+const { findDocumentCorrers, CropperView } = RNDDM;
 
 export default function App() {
   const [responseImg, setResponseImg] = React.useState(null);
@@ -98,7 +97,9 @@ export default function App() {
           handlerColor="rgba(20,150,160, 1)"
           enablePanStrict={false}
         />
-        <View style={{ flexDirection: 'row', paddingVertical: 10, height: 300 }}>
+        <View
+          style={{ flexDirection: 'row', paddingVertical: 10, height: 300 }}
+        >
           <TouchableOpacity onPress={crop} style={{ flex: 1 }}>
             <Text>CROP IMAGE</Text>
           </TouchableOpacity>
@@ -115,8 +116,6 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-
-
       <TouchableHighlight onPress={takePicture} underlayColor="gray">
         <Text>Pick image</Text>
       </TouchableHighlight>

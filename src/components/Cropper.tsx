@@ -1,22 +1,32 @@
-import React, { useImperativeHandle, forwardRef } from 'react';
-import { Dimensions, Image, View, } from 'react-native';
+/* eslint-disable prettier/prettier */
+import * as React from 'react';
+import { Dimensions, Image, View, StyleSheet } from 'react-native';
 import Svg, { Polygon } from 'react-native-svg';
 import Animated, {
   useSharedValue,
   useAnimatedProps,
   useAnimatedGestureHandler,
   useAnimatedStyle,
+  AnimateProps,
 } from 'react-native-reanimated';
 import {
   PanGestureHandler,
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
-import { cropper } from 'react-native-detect-document'
+import { cropper } from '../helpers/detectorAndCropper';
+import type { CropperProps, PolygonProps, CropperHandle } from '../types';
 
-const AnimatedPolygon = Animated.createAnimatedComponent(Polygon);
+const AnimatedPolygon = Animated.createAnimatedComponent(
+  Polygon
+) as React.ComponentClass<Animated.AnimateProps<PolygonProps>, any>;
+
 const screenWidth = Dimensions.get('window').width;
 
-const getViewHeight = (width, height, layout) => {
+const getViewHeight = (
+  width: number,
+  height: number,
+  layout: { height: number; width: number }
+) => {
   const imageRatio = width / height;
   let _viewHeight = 0;
   if (height > width) {
@@ -29,26 +39,25 @@ const getViewHeight = (width, height, layout) => {
   _viewHeight = Math.min(_viewHeight, layout.height);
   _viewHeight -= 50;
 
-
   return _viewHeight;
 };
 
-const getViewWidth = (width, height, viewHeight) => {
+const getViewWidth = (width: number, height: number, viewHeight: number) => {
   const imageRatio = width / height;
   let _viewWidth = 0;
   if (height > width) {
     // if user takes the photo in portrait
-    _viewWidth = Math.round(viewHeight * imageRatio) + 50
+    _viewWidth = Math.round(viewHeight * imageRatio) + 50;
   } else {
     // if user takes the photo in landscape
-    _viewWidth = Math.round(viewHeight / imageRatio) + 50
+    _viewWidth = Math.round(viewHeight / imageRatio) + 50;
   }
   _viewWidth -= 50;
 
   return _viewWidth;
-}
+};
 
-const Cropper = forwardRef(
+const Cropper = React.forwardRef<CropperHandle, CropperProps>(
   (
     {
       width,
@@ -60,14 +69,18 @@ const Cropper = forwardRef(
       overlayOpacity,
       overlayStrokeColor,
       overlayStrokeWidth,
-      ...props
-    },
+      updateImage,
+      handlerColor,
+    }: CropperProps,
     ref
   ) => {
     const viewHeight = getViewHeight(width, height, layout);
-    const viewWidth = getViewWidth(width, height, viewHeight)
+    const viewWidth = getViewWidth(width, height, viewHeight);
 
-    const imageCoordinatesToViewCoordinates = (corner) => {
+    const imageCoordinatesToViewCoordinates = (corner: {
+      x: number;
+      y: number;
+    }) => {
       const x = corner.x * (viewWidth / width);
       const y = corner.y * (viewHeight / height);
       return {
@@ -76,7 +89,10 @@ const Cropper = forwardRef(
       };
     };
 
-    const viewCoordinatesToImageCoordinates = (corner) => {
+    const viewCoordinatesToImageCoordinates = (corner: {
+      x: { value: number };
+      y: { value: number };
+    }) => {
       return {
         x: (corner.x.value / viewWidth) * width,
         y: (corner.y.value / viewHeight) * height,
@@ -126,18 +142,18 @@ const Cropper = forwardRef(
       x: useSharedValue(
         rectangleCoordinates
           ? imageCoordinatesToViewCoordinates(rectangleCoordinates.bottomRight)
-            .x
+              .x
           : screenWidth - 100
       ),
       y: useSharedValue(
         rectangleCoordinates
           ? imageCoordinatesToViewCoordinates(rectangleCoordinates.bottomRight)
-            .y
+              .y
           : viewHeight - 100
       ),
     };
 
-    useImperativeHandle(ref, () => ({
+    React.useImperativeHandle(ref, () => ({
       crop: () => {
         const coordinates = {
           topLeft: viewCoordinatesToImageCoordinates(topLeft),
@@ -147,19 +163,24 @@ const Cropper = forwardRef(
           height: height,
           width: width,
         };
-        return cropper(initialImage, coordinates).then((res) => {
-          props.updateImage(res.image, coordinates);
-        });
+        return cropper(initialImage, coordinates).then(
+          (res: { image: any }) => {
+            updateImage(res.image, coordinates);
+          }
+        );
       },
     }));
 
     const panResponderTopLeft = useAnimatedGestureHandler(
       {
-        onStart: (event, ctx) => {
+        onStart: (_event: any, ctx: { translateX: any; translateY: any }) => {
           ctx.translateX = topLeft.x.value;
           ctx.translateY = topLeft.y.value;
         },
-        onActive: (event, ctx) => {
+        onActive: (
+          event: { translationX: any; translationY: any },
+          ctx: { translateX: any; translateY: any }
+        ) => {
           const offsetX = ctx.translateX;
           const offsetY = ctx.translateY;
           const x = offsetX + event.translationX;
@@ -171,7 +192,6 @@ const Cropper = forwardRef(
           }
           // console.log('event', event);
         },
-        onEnd: (event, ctx) => { },
       },
       []
     );
@@ -191,11 +211,14 @@ const Cropper = forwardRef(
 
     const panResponderTopRight = useAnimatedGestureHandler(
       {
-        onStart: (event, ctx) => {
+        onStart: (_event: any, ctx: { translateX: any; translateY: any }) => {
           ctx.translateX = topRight.x.value;
           ctx.translateY = topRight.y.value;
         },
-        onActive: (event, ctx) => {
+        onActive: (
+          event: { translationX: any; translationY: any },
+          ctx: { translateX: any; translateY: any }
+        ) => {
           const offsetX = ctx.translateX;
           const offsetY = ctx.translateY;
           const x = offsetX + event.translationX;
@@ -207,7 +230,6 @@ const Cropper = forwardRef(
           }
           // console.log('event', event);
         },
-        onEnd: (event, ctx) => { },
       },
       []
     );
@@ -227,11 +249,14 @@ const Cropper = forwardRef(
 
     const panResponderBottomRight = useAnimatedGestureHandler(
       {
-        onStart: (event, ctx) => {
+        onStart: (_event: any, ctx: { translateX: any; translateY: any }) => {
           ctx.translateX = bottomRight.x.value;
           ctx.translateY = bottomRight.y.value;
         },
-        onActive: (event, ctx) => {
+        onActive: (
+          event: { translationX: any; translationY: any },
+          ctx: { translateX: any; translateY: any }
+        ) => {
           const offsetX = ctx.translateX;
           const offsetY = ctx.translateY;
           const x = offsetX + event.translationX;
@@ -243,7 +268,6 @@ const Cropper = forwardRef(
           }
           // console.log('event', event);
         },
-        onEnd: (event, ctx) => { },
       },
       []
     );
@@ -263,11 +287,14 @@ const Cropper = forwardRef(
 
     const panResponderBottomLeft = useAnimatedGestureHandler(
       {
-        onStart: (event, ctx) => {
+        onStart: (_event: any, ctx: { translateX: any; translateY: any }) => {
           ctx.translateX = bottomLeft.x.value;
           ctx.translateY = bottomLeft.y.value;
         },
-        onActive: (event, ctx) => {
+        onActive: (
+          event: { translationX: any; translationY: any },
+          ctx: { translateX: any; translateY: any }
+        ) => {
           const offsetX = ctx.translateX;
           const offsetY = ctx.translateY;
           const x = offsetX + event.translationX;
@@ -279,7 +306,6 @@ const Cropper = forwardRef(
           }
           // console.log('event', event);
         },
-        onEnd: (event, ctx) => { },
       },
       []
     );
@@ -299,7 +325,7 @@ const Cropper = forwardRef(
 
     const animatedPointsValues = [topLeft, topRight, bottomRight, bottomLeft];
 
-    const animatedProps = useAnimatedProps(
+    const animatedProps = useAnimatedProps<Partial<AnimateProps<PolygonProps>>>(
       () => ({
         points: animatedPointsValues.map((item) => {
           return [item.x.value, item.y.value];
@@ -308,19 +334,15 @@ const Cropper = forwardRef(
       []
     );
 
+    const handleColorStyle = handlerColor
+      ? { backgroundColor: handlerColor }
+      : {};
+
     return (
       <GestureHandlerRootView>
-        <View
-          style={[
-            // s(this.props).cropContainer,
-            { height: viewHeight, width: viewWidth },
-          ]}
-        >
+        <View style={[{ height: viewHeight, width: viewWidth }]}>
           <Image
-            style={[
-              // s(this.props).image,
-              { flex: 1 },
-            ]}
+            style={[{ flex: 1 }]}
             resizeMode="cover"
             source={{ uri: initialImage }}
           />
@@ -340,31 +362,61 @@ const Cropper = forwardRef(
           </Svg>
 
           <PanGestureHandler onGestureEvent={panResponderTopLeft}>
-            <Animated.View style={[s(props).handler, topLeftStyle]}>
-              <View style={[s(props).handlerI, { left: -10, top: -10 }]} />
-              <View style={[s(props).handlerRound, { left: 31, top: 31 }]} />
+            <Animated.View style={[s.handler, topLeftStyle]}>
+              <View
+                style={[s.handlerI, { left: -10, top: -10 }, handleColorStyle]}
+              />
+              <View
+                style={[
+                  s.handlerRound,
+                  { left: 31, top: 31 },
+                  handleColorStyle,
+                ]}
+              />
             </Animated.View>
           </PanGestureHandler>
 
           <PanGestureHandler onGestureEvent={panResponderTopRight}>
-            <Animated.View style={[s(props).handler, topRightStyle]}>
-              <View style={[s(props).handlerI, { left: 10, top: -10 }]} />
-              <View style={[s(props).handlerRound, { right: 31, top: 31 }]} />
+            <Animated.View style={[s.handler, topRightStyle]}>
+              <View
+                style={[s.handlerI, { left: 10, top: -10 }, handleColorStyle]}
+              />
+              <View
+                style={[
+                  s.handlerRound,
+                  { right: 31, top: 31 },
+                  handleColorStyle,
+                ]}
+              />
             </Animated.View>
           </PanGestureHandler>
 
           <PanGestureHandler onGestureEvent={panResponderBottomLeft}>
-            <Animated.View style={[s(props).handler, bottomLeftStyle]}>
-              <View style={[s(props).handlerI, { left: -10, top: 10 }]} />
-              <View style={[s(props).handlerRound, { left: 31, bottom: 31 }]} />
+            <Animated.View style={[s.handler, bottomLeftStyle]}>
+              <View
+                style={[s.handlerI, { left: -10, top: 10 }, handleColorStyle]}
+              />
+              <View
+                style={[
+                  s.handlerRound,
+                  { left: 31, bottom: 31 },
+                  handleColorStyle,
+                ]}
+              />
             </Animated.View>
           </PanGestureHandler>
 
           <PanGestureHandler onGestureEvent={panResponderBottomRight}>
-            <Animated.View style={[s(props).handler, bottomRightStyle]}>
-              <View style={[s(props).handlerI, { left: 10, top: 10 }]} />
+            <Animated.View style={[s.handler, bottomRightStyle]}>
               <View
-                style={[s(props).handlerRound, { right: 31, bottom: 31 }]}
+                style={[s.handlerI, { left: 10, top: 10 }, handleColorStyle]}
+              />
+              <View
+                style={[
+                  s.handlerRound,
+                  { right: 31, bottom: 31 },
+                  handleColorStyle,
+                ]}
               />
             </Animated.View>
           </PanGestureHandler>
@@ -374,23 +426,19 @@ const Cropper = forwardRef(
   }
 );
 
-const s = (props) => ({
+const s = StyleSheet.create({
   handlerI: {
     borderRadius: 0,
     height: 20,
     width: 20,
-    backgroundColor: props.handlerColor || 'blue',
+    backgroundColor: 'blue',
   },
   handlerRound: {
     width: 39,
     position: 'absolute',
     height: 39,
     borderRadius: 100,
-    backgroundColor: props.handlerColor || 'blue',
-  },
-  image: {
-    width: screenWidth,
-    position: 'absolute',
+    backgroundColor: 'blue',
   },
   bottomButton: {
     alignItems: 'center',
@@ -411,13 +459,6 @@ const s = (props) => ({
     position: 'absolute',
     zIndex: 10,
   },
-  cropContainer: {
-    position: 'absolute',
-    left: 0,
-    width: screenWidth,
-    top: 0,
-  },
 });
 
-
-export default Cropper
+export default Cropper;
