@@ -113,7 +113,7 @@ export default function App() {
                   handlerColor="rgba(20,150,160, 1)"
                   enablePanStrict={false}
                   onHander={(key) => {
-                    setscrollEnabled(key === 'start' ? false : true);
+                    setscrollEnabled(key !== 'start');
                     // console.log('key', key);
                   }}
                 />

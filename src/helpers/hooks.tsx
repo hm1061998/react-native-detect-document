@@ -69,6 +69,21 @@ export const useCustomAnimatedGestureHandler = (
           runOnJS(callback)('end');
         }
       },
+      onCancel: () => {
+        if (callback) {
+          runOnJS(callback)('cancel');
+        }
+      },
+      onFail: () => {
+        if (callback) {
+          runOnJS(callback)('fail');
+        }
+      },
+      onFinish: () => {
+        if (callback) {
+          runOnJS(callback)('finish');
+        }
+      },
     },
     []
   );
