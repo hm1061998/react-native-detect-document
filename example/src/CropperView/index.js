@@ -1,6 +1,6 @@
-import React, { forwardRef, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
-import Cropper from "./Cropper";
+import React, { forwardRef, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
+import Cropper from './Cropper';
 
 const CropperView = forwardRef((props, ref) => {
   const [isReady, setIsReady] = useState(false);
@@ -25,6 +25,6 @@ const CropperView = forwardRef((props, ref) => {
       )}
     </View>
   );
-})
+});
 
-export default CropperView
+export default CropperView;

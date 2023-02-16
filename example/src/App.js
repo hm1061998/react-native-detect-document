@@ -4,25 +4,16 @@ import {
   View,
   Text,
   TouchableHighlight,
-  Dimensions,
   TouchableOpacity,
   Image,
 } from 'react-native';
 import RNDDM from 'react-native-detect-document';
-
-// import CropperView from 'rn-detect-document/src/ImageCropper';
-// import { findDocumentCorrers, CropperView } from '../../src';
-// import CropperView from '../../src/ImageCropper/index'
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
-import ImgToBase64 from 'react-native-image-base64';
-import  CropperView  from "./CropperView";
-
+import CropperView from "./CropperView";
 const { findDocumentCorrers } = RNDDM
 
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
+
 export default function App() {
-  const [result, setResult] = React.useState();
   const [responseImg, setResponseImg] = React.useState(null);
   const [resultCrop, setResultCrop] = React.useState(null);
   const customCrop = React.useRef();
@@ -64,7 +55,7 @@ export default function App() {
     // console.log('end');
   };
 
-  const updateImage = (res, coordinates) => {
+  const updateImage = (res) => {
     // console.log('res',res);
     setResultCrop(res);
   };
@@ -124,7 +115,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+
 
       <TouchableHighlight onPress={takePicture} underlayColor="gray">
         <Text>Pick image</Text>

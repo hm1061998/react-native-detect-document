@@ -1,5 +1,5 @@
 import React, { useImperativeHandle, forwardRef } from 'react';
-import { Dimensions, Image, View, } from 'react-native';
+import { Dimensions, Image, View } from 'react-native';
 import Svg, { Polygon } from 'react-native-svg';
 import Animated, {
   useSharedValue,
@@ -11,7 +11,7 @@ import {
   PanGestureHandler,
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
-import { cropper } from 'react-native-detect-document'
+import { cropper } from 'react-native-detect-document';
 
 const AnimatedPolygon = Animated.createAnimatedComponent(Polygon);
 const screenWidth = Dimensions.get('window').width;
@@ -420,4 +420,4 @@ const s = (props) => ({
 });
 
 
-export default Cropper
+export default Cropper;

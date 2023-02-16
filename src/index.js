@@ -1,9 +1,5 @@
-
-
-
 import { NativeModules, Platform } from 'react-native';
 import RNCropperView from './CropperView';
-
 
 const LINKING_ERROR =
   `The package 'rn-detect-document' doesn't seem to be linked. Make sure: \n\n` +
