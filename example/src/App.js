@@ -6,15 +6,20 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   Image,
+  FlatList,
+  Dimensions,
 } from 'react-native';
 import RNDDM from 'react-native-detect-document';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 // import CropperView from "./CropperView";
 const { findDocumentCorrers, CropperView } = RNDDM;
 
+const { width } = Dimensions.get('window');
 export default function App() {
   const [responseImg, setResponseImg] = React.useState(null);
   const [resultCrop, setResultCrop] = React.useState(null);
+  const [scrollEnabled, setscrollEnabled] = React.useState(true);
   const customCrop = React.useRef();
 
   // console.log('CropperView', RNDDM);
@@ -50,8 +55,8 @@ export default function App() {
 
   const crop = async () => {
     // console.log('loading');
-    await customCrop.current.crop();
-    // console.log('end');
+    const res = await customCrop.current.crop();
+    // console.log('end', res);
   };
 
   const updateImage = (res) => {
@@ -85,18 +90,38 @@ export default function App() {
   if (responseImg) {
     return (
       <View style={{ flex: 1 }}>
-        <CropperView
-          updateImage={updateImage}
-          rectangleCoordinates={responseImg.rectangle}
-          initialImage={`file://${responseImg.realPath}`}
-          height={responseImg.height}
-          width={responseImg.width}
-          ref={customCrop}
-          overlayColor="rgba(18,190,210, 1)"
-          overlayStrokeColor="rgba(20,190,210, 1)"
-          handlerColor="rgba(20,150,160, 1)"
-          enablePanStrict={false}
+        <FlatList
+          style={{ width: '100%', height: '100%' }}
+          data={['1', '2', '3']}
+          keyExtractor={(item) => item}
+          scrollEnabled={scrollEnabled}
+          pagingEnabled
+          contentContainerStyle={{ backgroundColor: 'blue' }}
+          horizontal
+          renderItem={() => {
+            return (
+              <View style={{ width: width, height: '100%' }}>
+                <CropperView
+                  updateImage={updateImage}
+                  rectangleCoordinates={responseImg.rectangle}
+                  initialImage={`file://${responseImg.realPath}`}
+                  height={responseImg.height}
+                  width={responseImg.width}
+                  ref={customCrop}
+                  overlayColor="rgba(18,190,210, 1)"
+                  overlayStrokeColor="rgba(20,190,210, 1)"
+                  handlerColor="rgba(20,150,160, 1)"
+                  enablePanStrict={false}
+                  onHander={(key) => {
+                    setscrollEnabled(key === 'start' ? false : true);
+                    // console.log('key', key);
+                  }}
+                />
+              </View>
+            );
+          }}
         />
+
         <View
           style={{ flexDirection: 'row', paddingVertical: 10, height: 300 }}
         >

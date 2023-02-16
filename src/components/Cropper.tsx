@@ -3,10 +3,7 @@ import * as React from 'react';
 import { Dimensions, Image, View, StyleSheet } from 'react-native';
 import Svg, { Polygon } from 'react-native-svg';
 import Animated, {
-  useSharedValue,
   useAnimatedProps,
-  useAnimatedGestureHandler,
-  useAnimatedStyle,
   AnimateProps,
 } from 'react-native-reanimated';
 import {
@@ -14,6 +11,11 @@ import {
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
 import { cropper } from '../helpers/detectorAndCropper';
+import {
+  useCustomAnimatedGestureHandler,
+  useCustomAnimatedStyle,
+  useSharedValueXY,
+} from '../helpers/hooks';
 import type { CropperProps, PolygonProps, CropperHandle } from '../types';
 
 const AnimatedPolygon = Animated.createAnimatedComponent(
@@ -22,6 +24,7 @@ const AnimatedPolygon = Animated.createAnimatedComponent(
 
 const screenWidth = Dimensions.get('window').width;
 
+//calc viewHeight from height container
 const getViewHeight = (
   width: number,
   height: number,
@@ -42,6 +45,7 @@ const getViewHeight = (
   return _viewHeight;
 };
 
+//calc viewWidth from viewHeight and ratio image
 const getViewWidth = (width: number, height: number, viewHeight: number) => {
   const imageRatio = width / height;
   let _viewWidth = 0;
@@ -71,90 +75,51 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
       overlayStrokeWidth,
       updateImage,
       handlerColor,
+      onHander,
     }: CropperProps,
     ref
   ) => {
     const viewHeight = getViewHeight(width, height, layout);
     const viewWidth = getViewWidth(width, height, viewHeight);
 
-    const imageCoordinatesToViewCoordinates = (corner: {
-      x: number;
-      y: number;
-    }) => {
-      const x = corner.x * (viewWidth / width);
-      const y = corner.y * (viewHeight / height);
-      return {
-        x,
-        y,
-      };
-    };
+    //calc points of document on screen
+    const optionsView = { viewWidth, viewHeight, width, height };
+    const topLeft = useSharedValueXY(
+      rectangleCoordinates?.topLeft,
+      optionsView,
+      { x: 100, y: 100 }
+    );
 
-    const viewCoordinatesToImageCoordinates = (corner: {
-      x: { value: number };
-      y: { value: number };
-    }) => {
-      return {
-        x: (corner.x.value / viewWidth) * width,
-        y: (corner.y.value / viewHeight) * height,
-      };
-    };
+    const topRight = useSharedValueXY(
+      rectangleCoordinates?.topRight,
+      optionsView,
+      { x: screenWidth - 100, y: 100 }
+    );
 
-    const topLeft = {
-      x: useSharedValue(
-        rectangleCoordinates
-          ? imageCoordinatesToViewCoordinates(rectangleCoordinates.topLeft).x
-          : 100
-      ),
-      y: useSharedValue(
-        rectangleCoordinates
-          ? imageCoordinatesToViewCoordinates(rectangleCoordinates.topLeft).y
-          : 100
-      ),
-    };
+    const bottomLeft = useSharedValueXY(
+      rectangleCoordinates?.bottomLeft,
+      optionsView,
+      { x: 100, y: viewHeight - 100 }
+    );
 
-    const topRight = {
-      x: useSharedValue(
-        rectangleCoordinates
-          ? imageCoordinatesToViewCoordinates(rectangleCoordinates.topRight).x
-          : screenWidth - 100
-      ),
-      y: useSharedValue(
-        rectangleCoordinates
-          ? imageCoordinatesToViewCoordinates(rectangleCoordinates.topRight).y
-          : 100
-      ),
-    };
-
-    const bottomLeft = {
-      x: useSharedValue(
-        rectangleCoordinates
-          ? imageCoordinatesToViewCoordinates(rectangleCoordinates.bottomLeft).x
-          : 100
-      ),
-      y: useSharedValue(
-        rectangleCoordinates
-          ? imageCoordinatesToViewCoordinates(rectangleCoordinates.bottomLeft).y
-          : viewHeight - 100
-      ),
-    };
-
-    const bottomRight = {
-      x: useSharedValue(
-        rectangleCoordinates
-          ? imageCoordinatesToViewCoordinates(rectangleCoordinates.bottomRight)
-              .x
-          : screenWidth - 100
-      ),
-      y: useSharedValue(
-        rectangleCoordinates
-          ? imageCoordinatesToViewCoordinates(rectangleCoordinates.bottomRight)
-              .y
-          : viewHeight - 100
-      ),
-    };
+    const bottomRight = useSharedValueXY(
+      rectangleCoordinates?.bottomRight,
+      optionsView,
+      { x: screenWidth - 100, y: viewHeight - 100 }
+    );
+    //end calc
 
     React.useImperativeHandle(ref, () => ({
-      crop: () => {
+      crop: async () => {
+        const viewCoordinatesToImageCoordinates = (corner: {
+          x: { value: number };
+          y: { value: number };
+        }) => {
+          return {
+            x: (corner.x.value / viewWidth) * width,
+            y: (corner.y.value / viewHeight) * height,
+          };
+        };
         const coordinates = {
           topLeft: viewCoordinatesToImageCoordinates(topLeft),
           topRight: viewCoordinatesToImageCoordinates(topRight),
@@ -163,166 +128,56 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
           height: height,
           width: width,
         };
-        return cropper(initialImage, coordinates).then(
-          (res: { image: any }) => {
-            updateImage(res.image, coordinates);
-          }
-        );
+        const res = await cropper(initialImage, coordinates);
+        updateImage(res.image, coordinates);
+        return { image: res.image, coordinates };
       },
     }));
 
-    const panResponderTopLeft = useAnimatedGestureHandler(
+    //create event listener drag point
+    const panResponderTopLeft = useCustomAnimatedGestureHandler(
+      topLeft,
       {
-        onStart: (_event: any, ctx: { translateX: any; translateY: any }) => {
-          ctx.translateX = topLeft.x.value;
-          ctx.translateY = topLeft.y.value;
-        },
-        onActive: (
-          event: { translationX: any; translationY: any },
-          ctx: { translateX: any; translateY: any }
-        ) => {
-          const offsetX = ctx.translateX;
-          const offsetY = ctx.translateY;
-          const x = offsetX + event.translationX;
-          const y = offsetY + event.translationY;
-
-          if (x >= 0 && y >= 0 && x <= viewWidth && y <= viewHeight) {
-            topLeft.x.value = ctx.translateX + event.translationX;
-            topLeft.y.value = ctx.translateY + event.translationY;
-          }
-          // console.log('event', event);
-        },
+        viewWidth,
+        viewHeight,
       },
-      []
+      onHander
     );
 
-    const topLeftStyle = useAnimatedStyle(() => {
-      return {
-        transform: [
-          {
-            translateX: topLeft.x.value,
-          },
-          {
-            translateY: topLeft.y.value,
-          },
-        ],
-      };
-    }, []);
-
-    const panResponderTopRight = useAnimatedGestureHandler(
+    const panResponderTopRight = useCustomAnimatedGestureHandler(
+      topRight,
       {
-        onStart: (_event: any, ctx: { translateX: any; translateY: any }) => {
-          ctx.translateX = topRight.x.value;
-          ctx.translateY = topRight.y.value;
-        },
-        onActive: (
-          event: { translationX: any; translationY: any },
-          ctx: { translateX: any; translateY: any }
-        ) => {
-          const offsetX = ctx.translateX;
-          const offsetY = ctx.translateY;
-          const x = offsetX + event.translationX;
-          const y = offsetY + event.translationY;
-
-          if (x >= 0 && y >= 0 && x <= viewWidth && y <= viewHeight) {
-            topRight.x.value = ctx.translateX + event.translationX;
-            topRight.y.value = ctx.translateY + event.translationY;
-          }
-          // console.log('event', event);
-        },
+        viewWidth,
+        viewHeight,
       },
-      []
+      onHander
     );
 
-    const topRightStyle = useAnimatedStyle(() => {
-      return {
-        transform: [
-          {
-            translateX: topRight.x.value,
-          },
-          {
-            translateY: topRight.y.value,
-          },
-        ],
-      };
-    }, []);
-
-    const panResponderBottomRight = useAnimatedGestureHandler(
+    const panResponderBottomRight = useCustomAnimatedGestureHandler(
+      bottomRight,
       {
-        onStart: (_event: any, ctx: { translateX: any; translateY: any }) => {
-          ctx.translateX = bottomRight.x.value;
-          ctx.translateY = bottomRight.y.value;
-        },
-        onActive: (
-          event: { translationX: any; translationY: any },
-          ctx: { translateX: any; translateY: any }
-        ) => {
-          const offsetX = ctx.translateX;
-          const offsetY = ctx.translateY;
-          const x = offsetX + event.translationX;
-          const y = offsetY + event.translationY;
-
-          if (x >= 0 && y >= 0 && x <= viewWidth && y <= viewHeight) {
-            bottomRight.x.value = ctx.translateX + event.translationX;
-            bottomRight.y.value = ctx.translateY + event.translationY;
-          }
-          // console.log('event', event);
-        },
+        viewWidth,
+        viewHeight,
       },
-      []
+      onHander
     );
 
-    const bottomRightStyle = useAnimatedStyle(() => {
-      return {
-        transform: [
-          {
-            translateX: bottomRight.x.value,
-          },
-          {
-            translateY: bottomRight.y.value,
-          },
-        ],
-      };
-    }, []);
-
-    const panResponderBottomLeft = useAnimatedGestureHandler(
+    const panResponderBottomLeft = useCustomAnimatedGestureHandler(
+      bottomLeft,
       {
-        onStart: (_event: any, ctx: { translateX: any; translateY: any }) => {
-          ctx.translateX = bottomLeft.x.value;
-          ctx.translateY = bottomLeft.y.value;
-        },
-        onActive: (
-          event: { translationX: any; translationY: any },
-          ctx: { translateX: any; translateY: any }
-        ) => {
-          const offsetX = ctx.translateX;
-          const offsetY = ctx.translateY;
-          const x = offsetX + event.translationX;
-          const y = offsetY + event.translationY;
-
-          if (x >= 0 && y >= 0 && x <= viewWidth && y <= viewHeight) {
-            bottomLeft.x.value = ctx.translateX + event.translationX;
-            bottomLeft.y.value = ctx.translateY + event.translationY;
-          }
-          // console.log('event', event);
-        },
+        viewWidth,
+        viewHeight,
       },
-      []
+      onHander
     );
 
-    const bottomLeftStyle = useAnimatedStyle(() => {
-      return {
-        transform: [
-          {
-            translateX: bottomLeft.x.value,
-          },
-          {
-            translateY: bottomLeft.y.value,
-          },
-        ],
-      };
-    }, []);
+    //create style of points
+    const topLeftStyle = useCustomAnimatedStyle(topLeft);
+    const topRightStyle = useCustomAnimatedStyle(topRight);
+    const bottomRightStyle = useCustomAnimatedStyle(bottomRight);
+    const bottomLeftStyle = useCustomAnimatedStyle(bottomLeft);
 
+    //create polygon with 4 points
     const animatedPointsValues = [topLeft, topRight, bottomRight, bottomLeft];
 
     const animatedProps = useAnimatedProps<Partial<AnimateProps<PolygonProps>>>(

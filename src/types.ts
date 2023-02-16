@@ -13,32 +13,35 @@ export interface CropperResults {
   image: string;
 }
 
+export interface PointProps {
+  x: number;
+  y: number;
+}
+
+export interface RectangleProps {
+  topLeft: PointProps;
+  topRight: PointProps;
+  bottomLeft: PointProps;
+  bottomRight: PointProps;
+}
+
+interface DataImageResult extends RectangleProps {
+  height: number;
+  width: number;
+}
+
 export interface CropperViewProps {
   width: number;
   height: number;
   initialImage: string;
-  rectangleCoordinates: {
-    topLeft: { x: number; y: number };
-    topRight: { x: number; y: number };
-    bottomLeft: { x: number; y: number };
-    bottomRight: { x: number; y: number };
-  };
+  rectangleCoordinates: RectangleProps;
   overlayColor: string;
   overlayOpacity: string;
   overlayStrokeColor: string;
   overlayStrokeWidth: string;
   handlerColor: string;
-  updateImage: (
-    image: string,
-    points: {
-      topLeft: { x: number; y: number };
-      topRight: { x: number; y: number };
-      bottomLeft: { x: number; y: number };
-      bottomRight: { x: number; y: number };
-      height: number;
-      width: number;
-    }
-  ) => void;
+  updateImage: (image: string, points: DataImageResult) => void;
+  onHander: (key: string) => void;
 }
 
 export interface CropperProps extends CropperViewProps {
