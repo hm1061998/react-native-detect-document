@@ -3,6 +3,10 @@ import type { ColorValue } from 'react-native';
 
 export declare type NumberProp = string | number;
 
+export type CropperHandle = {
+  crop: () => void;
+};
+
 export interface DocumentCorrersResults {
   corners: Object;
   width: number;
@@ -40,7 +44,7 @@ export interface CropperViewProps {
   overlayStrokeColor: string;
   overlayStrokeWidth: string;
   handlerColor: string;
-  updateImage: (image: string, points: DataImageResult) => void;
+  updateImage?: (image: string, points: DataImageResult) => void;
   onHander: (key: string) => void;
 }
 
@@ -56,6 +60,9 @@ export interface PolygonProps {
   strokeWidth?: NumberProp;
 }
 
-export type CropperHandle = {
-  crop: () => void;
-};
+export interface getImageResults {
+  image: string;
+  blur: string;
+  candy: string;
+  newImage: string;
+}

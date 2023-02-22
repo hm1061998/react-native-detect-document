@@ -1,6 +1,10 @@
 /* eslint-disable prettier/prettier */
 import { NativeModules, Platform } from 'react-native';
-import type { DocumentCorrersResults, CropperResults } from '../types';
+import type {
+  DocumentCorrersResults,
+  CropperResults,
+  getImageResults,
+} from '../types';
 
 const LINKING_ERROR =
   `The package 'rn-detect-document' doesn't seem to be linked. Make sure: \n\n` +
@@ -31,4 +35,10 @@ export const cropper = (
   quality: number = 100
 ): Promise<CropperResults | never> => {
   return RnDDM.cropper(path, points, quality);
+};
+
+export const getResultImage = (
+  path: string
+): Promise<getImageResults | never> => {
+  return RnDDM.getResultImage(path);
 };

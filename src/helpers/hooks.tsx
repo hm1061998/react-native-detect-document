@@ -103,7 +103,7 @@ export const useSharedValueXY = (
   };
 };
 
-export const useCustomAnimatedStyle = (animated: AnimatedStyle) => {
+export const useTranslateAnimatedStyle = (animated: AnimatedStyle) => {
   return useAnimatedStyle(() => {
     return {
       transform: [

@@ -8,17 +8,22 @@ import {
   Image,
   FlatList,
   Dimensions,
+  ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import RNDDM from 'react-native-detect-document';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 // import CropperView from "./CropperView";
-const { findDocumentCorrers, CropperView } = RNDDM;
+const { findDocumentCorrers, CropperView, getResultImage } = RNDDM;
 
 const { width } = Dimensions.get('window');
 export default function App() {
   const [responseImg, setResponseImg] = React.useState(null);
   const [resultCrop, setResultCrop] = React.useState(null);
+  const [resultImage, setresultImage] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
+
   const [scrollEnabled, setscrollEnabled] = React.useState(true);
   const customCrop = React.useRef();
 
@@ -33,21 +38,29 @@ export default function App() {
         isPreview: false,
       });
       // const base64 = await ImgToBase64.getBase64String(response.path);
+
+      //      setLoading(true)
+      //      const res = await getResultImage(response.realPath);
+      //      setLoading(false)
+      //      setresultImage(res);
+      // setResultCrop(image);
+      // console.log('data',corners);
+
+      setLoading(true);
       const { corners, width, height } = await findDocumentCorrers(
         response.realPath
       );
-
-      // console.log('data',corners);
+      setLoading(false);
       const rectangle = {
         topLeft: corners.TOP_LEFT,
         topRight: corners.TOP_RIGHT,
         bottomRight: corners.BOTTOM_RIGHT,
         bottomLeft: corners.BOTTOM_LEFT,
       };
-
+      //
       setResponseImg({ realPath: response.realPath, width, height, rectangle });
 
-      // console.log({ corrers});
+      // console.log({ response });
     } catch (e) {
       console.log('e', e);
     }
@@ -85,14 +98,14 @@ export default function App() {
     );
   }
 
-  // console.log({responseImg});
+  //   console.log({loading});
 
   if (responseImg) {
     return (
       <View style={{ flex: 1 }}>
         <FlatList
           style={{ width: '100%', height: '100%' }}
-          data={['1', '2', '3']}
+          data={['1']}
           keyExtractor={(item) => item}
           scrollEnabled={scrollEnabled}
           pagingEnabled
@@ -139,10 +152,60 @@ export default function App() {
     );
   }
 
+  if (resultImage) {
+    return (
+      <View style={{ flex: 1 }}>
+        <ScrollView>
+          <Text>Ảnh gốc</Text>
+          <Image
+            style={{ height: 200, resizeMode: 'contain' }}
+            resizeMode="contain"
+            source={{ uri: `data:image/png;base64,${resultImage.image}` }}
+          />
+          <Text>Lọc nhiễu</Text>
+          <Image
+            style={{ height: 200, resizeMode: 'contain' }}
+            resizeMode="contain"
+            source={{ uri: `data:image/png;base64,${resultImage.blur}` }}
+          />
+          <Text>Tìm đường viền</Text>
+          <Image
+            style={{ height: 200, resizeMode: 'contain' }}
+            resizeMode="contain"
+            source={{ uri: `data:image/png;base64,${resultImage.candy}` }}
+          />
+
+          <Text>Kết quả</Text>
+          <Image
+            style={{ height: 200, resizeMode: 'contain' }}
+            resizeMode="contain"
+            source={{ uri: `data:image/png;base64,${resultImage.newImage}` }}
+          />
+        </ScrollView>
+        <TouchableOpacity
+          style={{ height: 50, zIndex: 10 }}
+          onPress={() => {
+            setresultImage(null);
+          }}
+        >
+          <Text>Quay lại</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <TouchableHighlight onPress={takePicture} underlayColor="gray">
-        <Text>Pick image</Text>
+      <TouchableHighlight
+        disabled={loading}
+        onPress={takePicture}
+        underlayColor="gray"
+      >
+        {loading ? (
+          <ActivityIndicator size="large" color="#00ff00" />
+        ) : (
+          <Text>Pick image</Text>
+        )}
       </TouchableHighlight>
     </View>
   );

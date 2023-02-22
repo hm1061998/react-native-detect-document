@@ -13,7 +13,7 @@ import {
 import { cropper } from '../helpers/detectorAndCropper';
 import {
   useCustomAnimatedGestureHandler,
-  useCustomAnimatedStyle,
+  useTranslateAnimatedStyle,
   useSharedValueXY,
 } from '../helpers/hooks';
 import type { CropperProps, PolygonProps, CropperHandle } from '../types';
@@ -128,8 +128,9 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
           height: height,
           width: width,
         };
+
         const res = await cropper(initialImage, coordinates);
-        updateImage(res.image, coordinates);
+        updateImage?.(res.image, coordinates);
         return { image: res.image, coordinates };
       },
     }));
@@ -172,10 +173,10 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
     );
 
     //create style of points
-    const topLeftStyle = useCustomAnimatedStyle(topLeft);
-    const topRightStyle = useCustomAnimatedStyle(topRight);
-    const bottomRightStyle = useCustomAnimatedStyle(bottomRight);
-    const bottomLeftStyle = useCustomAnimatedStyle(bottomLeft);
+    const topLeftStyle = useTranslateAnimatedStyle(topLeft);
+    const topRightStyle = useTranslateAnimatedStyle(topRight);
+    const bottomRightStyle = useTranslateAnimatedStyle(bottomRight);
+    const bottomLeftStyle = useTranslateAnimatedStyle(bottomLeft);
 
     //create polygon with 4 points
     const animatedPointsValues = [topLeft, topRight, bottomRight, bottomLeft];
