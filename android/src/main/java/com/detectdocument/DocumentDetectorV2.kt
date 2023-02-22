@@ -44,6 +44,7 @@ class DocumentDetectorV2() {
         shrunkImageHeight * photo.width / photo.height, shrunkImageHeight
       )
     )
+
     val orig = mat
 
     val outputImage = Mat()
@@ -65,8 +66,11 @@ class DocumentDetectorV2() {
 
     Core.copyMakeBorder(blur, blur, 5, 5, 5, 5, Core.BORDER_CONSTANT)
     // detect the document's border using the Canny edge detection algorithm
-    Imgproc.Canny(blur, candy, 20.0, 84.0)
-    Imgproc.HoughLines(candy, lines, 1.0, 3.14 / 180, 100); // runs the actual detection
+    Imgproc.Canny(blur, candy, 20.0, 200.0,3)
+    Imgproc.dilate(
+      candy, candy, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, Size(3.0, 3.0))
+    )
+    Imgproc.HoughLines(candy, lines, 1.0, 3.14 / 180, 150); // runs the actual detection
     val newLine = Mat.ones(candy.size(), CvType.CV_8U)
     Core.bitwise_not(newLine, newLine)
     // Draw the lines
@@ -88,7 +92,7 @@ class DocumentDetectorV2() {
 
     Imgproc.Canny(newLine, newLine, 50.0, 200.0, 3)
     Imgproc.dilate(
-      newLine, newLine, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, Size(3.0, 3.0))
+      newLine, newLine, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, Size(5.0, 5.0))
     )
 
 
@@ -154,7 +158,7 @@ class DocumentDetectorV2() {
       Imgproc.approxPolyDP(
         contour2f,
         approxContour,
-        0.05 * Imgproc.arcLength(contour2f, true),
+        0.04 * Imgproc.arcLength(contour2f, true),
         check,
       )
       MatOfPoint(*approxContour.toArray())
@@ -230,9 +234,11 @@ class DocumentDetectorV2() {
 
     Core.copyMakeBorder(blur, blur, 5, 5, 5, 5, Core.BORDER_CONSTANT)
     // detect the document's border using the Canny edge detection algorithm
-    Imgproc.Canny(blur, candy, 20.0, 84.0)
-//     Imgproc.threshold(blur, candy, 150.0, 255.0, Imgproc.THRESH_BINARY)
-    Imgproc.HoughLines(candy, lines, 1.0, 3.14 / 180, 100); // runs the actual detection
+    Imgproc.Canny(blur, candy, 20.0, 200.0,3)
+    Imgproc.dilate(
+      candy, candy, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, Size(3.0, 3.0))
+    )
+    Imgproc.HoughLines(candy, lines, 1.0, 3.14 / 180, 150); // runs the actual detection
     val newLine = Mat.ones(candy.size(), CvType.CV_8U)
     Core.bitwise_not(newLine, newLine)
     // Draw the lines
@@ -254,7 +260,7 @@ class DocumentDetectorV2() {
 
     Imgproc.Canny(newLine, newLine, 50.0, 200.0, 3)
     Imgproc.dilate(
-      newLine, newLine, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, Size(3.0, 3.0))
+      newLine, newLine, Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, Size(5.0, 5.0))
     )
 
     // get outline of document edges, and outlines of other shapes in photo

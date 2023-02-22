@@ -39,10 +39,10 @@ export default function App() {
       });
       // const base64 = await ImgToBase64.getBase64String(response.path);
 
-      //      setLoading(true)
-      //      const res = await getResultImage(response.realPath);
-      //      setLoading(false)
-      //      setresultImage(res);
+      //            setLoading(true)
+      //            const res = await getResultImage(response.realPath);
+      //            setLoading(false)
+      //            setresultImage(res);
       // setResultCrop(image);
       // console.log('data',corners);
 

@@ -45,7 +45,7 @@ class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
         "error starting OpenCV: ${exception.message}"
       )
     }
-    val result = DocumentDetector2().findDocument(originalPhotoPath.replace("file://", ""))
+    val result = DocumentDetectorV2().findDocument(originalPhotoPath.replace("file://", ""))
 
 
 
@@ -83,7 +83,6 @@ class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
 
     val info: WritableMap = WritableNativeMap()
     val points: WritableMap = WritableNativeMap()
-    val results: WritableArray = WritableNativeArray()
     for ((quadCorner: QuadCorner, cornerPoint: PointF) in corners.corners) {
       val item: WritableMap = WritableNativeMap()
       item.putInt("x", cornerPoint.x.toInt())
