@@ -240,7 +240,7 @@ class DocumentDetectorV2() {
     )
     Imgproc.HoughLines(candy, lines, 1.0, 3.14 / 180, 150); // runs the actual detection
     val newLine = Mat.ones(candy.size(), CvType.CV_8U)
-    Core.bitwise_not(newLine, newLine)
+   
     // Draw the lines
     for (x in 0 until lines.rows()) {
       val rho = lines.get(x, 0).get(0)
@@ -253,8 +253,8 @@ class DocumentDetectorV2() {
         Point(Math.round(x0 + 1000.0 * -b).toDouble(), Math.round(y0 + 1000.0 * a).toDouble())
       val pt2 =
         Point(Math.round(x0 - 1000.0 * -b).toDouble(), Math.round(y0 - 1000.0 * a).toDouble())
-      Imgproc.line(candy, pt1, pt2, Scalar(255.0, 0.0, 0.0), 2, 8)
-      Imgproc.line(newLine, pt1, pt2, Scalar(0.0, 255.0, 0.0), 1, 8)
+
+      Imgproc.line(newLine, pt1, pt2, Scalar(255.0, 0.0, 0.0), 1, 8)
 
     }
 
@@ -288,9 +288,6 @@ class DocumentDetectorV2() {
         it
       )
     }
-
-    val new2 = Mat.ones(candy.size(), CvType.CV_8U)
-    Core.bitwise_not(new2, new2)
 
     val contour = contours2.maxByOrNull { Imgproc.contourArea(it) }
 
