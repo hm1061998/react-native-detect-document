@@ -1,4 +1,5 @@
 #import "RnDetectDocument.h"
+#import <math.h>
 #import <React/RCTLog.h>
 
 @implementation RnDetectDocument
@@ -13,9 +14,9 @@ int cropperOffsetWhenCornersNotFound = 100;
 
 RCT_EXPORT_MODULE()
 
-RCT_EXPORT_METHOD(cropper:(NSURL *)originalPhotoPath 
-                  points:(NSDictionary *)points 
-                  quality:(int)quality 
+RCT_EXPORT_METHOD(cropper:(NSURL *)originalPhotoPath
+                  points:(NSDictionary *)points
+                  quality:(int)quality
                   resolvePromise:(RCTPromiseResolveBlock)resolve
                   rejecter: (RCTPromiseRejectBlock)reject )
 {
@@ -23,14 +24,14 @@ RCT_EXPORT_METHOD(cropper:(NSURL *)originalPhotoPath
   UIImage* image = [self pathToUIImage:originalPhotoPath];
   cv::Mat orig = [self convertUIImageToCVMat:image];
 
-  double topLeftX = [[[points valueForKey:@"topLeft"] valueForKey:@"x"] doubleValue]; 
-  double topLeftY  = [[[points valueForKey:@"topLeft"] valueForKey:@"y"] doubleValue]; 
-  double topRightX = [[[points valueForKey:@"topRight"] valueForKey:@"x"] doubleValue]; 
-  double topRightY  = [[[points valueForKey:@"topRight"] valueForKey:@"y"] doubleValue]; 
-  double bottomRightX = [[[points valueForKey:@"bottomRight"] valueForKey:@"x"] doubleValue]; 
-  double bottomRightY = [[[points valueForKey:@"bottomRight"] valueForKey:@"y"] doubleValue]; 
-  double bottomLeftX  = [[[points valueForKey:@"bottomLeft"] valueForKey:@"x"] doubleValue]; 
-  double bottomLeftY = [[[points valueForKey:@"bottomLeft"] valueForKey:@"y"] doubleValue]; 
+  double topLeftX = [[[points valueForKey:@"topLeft"] valueForKey:@"x"] doubleValue];
+  double topLeftY  = [[[points valueForKey:@"topLeft"] valueForKey:@"y"] doubleValue];
+  double topRightX = [[[points valueForKey:@"topRight"] valueForKey:@"x"] doubleValue];
+  double topRightY  = [[[points valueForKey:@"topRight"] valueForKey:@"y"] doubleValue];
+  double bottomRightX = [[[points valueForKey:@"bottomRight"] valueForKey:@"x"] doubleValue];
+  double bottomRightY = [[[points valueForKey:@"bottomRight"] valueForKey:@"y"] doubleValue];
+  double bottomLeftX  = [[[points valueForKey:@"bottomLeft"] valueForKey:@"x"] doubleValue];
+  double bottomLeftY = [[[points valueForKey:@"bottomLeft"] valueForKey:@"y"] doubleValue];
 
   cv::Point tLC = cv::Point(topLeftX, topLeftY);
   cv::Point tRC = cv::Point(topRightX, topRightY);
@@ -100,9 +101,9 @@ RCT_EXPORT_METHOD(findDocumentCorrers:(NSURL *)filePath
 
   cv::morphologyEx(
     outputImage,
-    outputImage, 
+    outputImage,
     cv::MORPH_CLOSE,
-    cv::Mat::ones(cv::Size(9, 9),CV_8U) 
+    cv::Mat::ones(cv::Size(9, 9),CV_8U)
   );
 
   cv::cvtColor(outputImage, gray, cv::COLOR_BGR2GRAY);
@@ -147,8 +148,8 @@ RCT_EXPORT_METHOD(findDocumentCorrers:(NSURL *)filePath
 
   for (size_t i = 0; i < approxContours.size(); i++){
       if(
-        approxContours[i].size() > 2 
-        && cv::contourArea(approxContours[i]) < MAX_COUNTOUR_AREA 
+        approxContours[i].size() > 2
+        && cv::contourArea(approxContours[i]) < MAX_COUNTOUR_AREA
         && cv::contourArea(approxContours[i]) > 10000){
           approxContoursFilter.push_back(approxContours[i]);
       }
@@ -168,7 +169,7 @@ RCT_EXPORT_METHOD(findDocumentCorrers:(NSURL *)filePath
    for (size_t i = 0; i < approxContoursFinal.size(); i++){
       if(
         approxContoursFinal[i].size() == 4
-        && cv::contourArea(approxContoursFinal[i]) < MAX_COUNTOUR_AREA 
+        && cv::contourArea(approxContoursFinal[i]) < MAX_COUNTOUR_AREA
         && cv::contourArea(approxContoursFinal[i]) > 10000
         && cv::isContourConvex(approxContoursFinal[i])
         && cv::contourArea(approxContoursFinal[i]) > maxArea){
@@ -184,7 +185,7 @@ RCT_EXPORT_METHOD(findDocumentCorrers:(NSURL *)filePath
 
  
   cv::Point topLeft = points.size() == 4 ? points[0] : cv::Point(cropperOffsetWhenCornersNotFound,cropperOffsetWhenCornersNotFound) ;
-  cv::Point topRight = points.size() == 4 ? points[1] : cv::Point(image.size.width - cropperOffsetWhenCornersNotFound,cropperOffsetWhenCornersNotFound); 
+  cv::Point topRight = points.size() == 4 ? points[1] : cv::Point(image.size.width - cropperOffsetWhenCornersNotFound,cropperOffsetWhenCornersNotFound);
   cv::Point bottomRight = points.size() == 4 ? points[2] : cv::Point(image.size.width - cropperOffsetWhenCornersNotFound,image.size.height - cropperOffsetWhenCornersNotFound);
   cv::Point bottomLeft = points.size() == 4 ? points[3] : cv::Point(cropperOffsetWhenCornersNotFound, image.size.height -  cropperOffsetWhenCornersNotFound);
 
@@ -221,8 +222,8 @@ RCT_EXPORT_METHOD(findDocumentCorrers:(NSURL *)filePath
 }
 
 - (double) _distance:(cv::Point) p1 p2:(cv::Point) p2{
-	return sqrt(((p1.x - p2.x) * (p1.x - p2.x)) +
-				((p1.y - p2.y) * (p1.y - p2.y)));
+    return sqrt(((p1.x - p2.x) * (p1.x - p2.x)) +
+                ((p1.y - p2.y) * (p1.y - p2.y)));
 }
 
 - (std::vector<cv::Point>) OrderPoints:(std::vector<cv::Point>) ip_op_corners_orig {

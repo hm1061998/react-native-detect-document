@@ -10,6 +10,7 @@ import {
   Dimensions,
   ScrollView,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import RNDDM from 'react-native-detect-document';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
@@ -47,9 +48,11 @@ export default function App() {
       // console.log('data',corners);
 
       setLoading(true);
-      const { corners, width, height } = await findDocumentCorrers(
-        response.realPath
-      );
+      const filePath = Platform.select({
+        ios: response.path,
+        android: `file://${response.realPath}`,
+      });
+      const { corners, width, height } = await findDocumentCorrers(filePath);
       setLoading(false);
       const rectangle = {
         topLeft: corners.TOP_LEFT,
@@ -58,7 +61,7 @@ export default function App() {
         bottomLeft: corners.BOTTOM_LEFT,
       };
       //
-      setResponseImg({ realPath: response.realPath, width, height, rectangle });
+      setResponseImg({ realPath: filePath, width, height, rectangle });
 
       // console.log({ response });
     } catch (e) {
