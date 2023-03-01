@@ -20,6 +20,13 @@ or
 
 yarn add react-native-reanimated react-native-svg react-native-gesture-handler
 ```
+## IOS
+
+```sh
+cd ios
+
+pod install
+```
 
 ## Usage
 
