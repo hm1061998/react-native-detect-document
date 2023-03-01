@@ -110,7 +110,7 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
     //end calc
 
     React.useImperativeHandle(ref, () => ({
-      crop: async () => {
+      crop: async (quality?: number) => {
         const viewCoordinatesToImageCoordinates = (corner: {
           x: { value: number };
           y: { value: number };
@@ -129,7 +129,7 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
           width: width,
         };
 
-        const res = await cropper(initialImage, coordinates);
+        const res = await cropper(initialImage, coordinates, quality);
         updateImage?.(res.image, coordinates);
         return { image: res.image, coordinates };
       },
