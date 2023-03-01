@@ -11,6 +11,7 @@ or
 
 yarn add react-native-detect-document
 ```
+
 ## Install peer dependencies
 
 ```sh
@@ -20,6 +21,7 @@ or
 
 yarn add react-native-reanimated react-native-svg react-native-gesture-handler
 ```
+
 ## IOS
 
 ```sh
@@ -39,6 +41,7 @@ import {
   TouchableHighlight,
   TouchableOpacity,
   Image,
+  Platform,
 } from 'react-native';
 import RNDDM from 'react-native-detect-document';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
@@ -60,10 +63,12 @@ export default function App() {
         singleSelectedMode: true,
         isPreview: false,
       });
-      // const base64 = await ImgToBase64.getBase64String(response.path);
-      const { corners, width, height } = await findDocumentCorrers(
-        response.realPath
-      );
+
+      const filePath = Platform.select({
+        ios: response.path,
+        android: `file://${response.realPath}`,
+      });
+      const { corners, width, height } = await findDocumentCorrers(filePath);
 
       // console.log('data',corners);
       const rectangle = {
@@ -73,7 +78,7 @@ export default function App() {
         bottomLeft: corners.BOTTOM_LEFT,
       };
 
-      setResponseImg({ realPath: response.realPath, width, height, rectangle });
+      setResponseImg({ realPath: filePath, width, height, rectangle });
 
       // console.log({ corrers});
     } catch (e) {
@@ -121,7 +126,7 @@ export default function App() {
         <CropperView
           updateImage={updateImage}
           rectangleCoordinates={responseImg.rectangle}
-          initialImage={`file://${responseImg.realPath}`}
+          initialImage={responseImg.realPath}
           height={responseImg.height}
           width={responseImg.width}
           ref={customCrop}
@@ -168,7 +173,6 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
 });
-
 ```
 
 ## Contributing

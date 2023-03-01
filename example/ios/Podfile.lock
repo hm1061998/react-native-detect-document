@@ -330,7 +330,7 @@ PODS:
   - React-jsinspector (0.71.2)
   - React-logger (0.71.2):
     - glog
-  - react-native-detect-document (0.1.8):
+  - react-native-detect-document (0.1.10):
     - OpenCV (~> 4.1.0)
     - React-Core
   - react-native-image-base64 (0.1.4):
@@ -663,7 +663,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: c7e028406112db456ac3cf5720d266bc7bc20938
   React-jsinspector: ea8101acf525ec08b2d87ddf0637d45f8e3b4148
   React-logger: 97987f46779d8dd24656474ad0c43a5b459f31d6
-  react-native-detect-document: f3c583eb8df75aa81631a17be7f91a5a8e5fedac
+  react-native-detect-document: ea864afe31039b1afb7ef5594fd702af7cb3f8cb
   react-native-image-base64: 2ff9ac788639c87a91361ab6652cc95e871b1e54
   react-native-multiple-image-picker: ba2725d577e1da7fa83ce1b12a81d84107556240
   React-perflogger: c7ccda3d1d1da837f7ff4e54e816022a6803ee87

@@ -38,8 +38,8 @@ RCT_EXPORT_METHOD(cropper:(NSURL *)originalPhotoPath
   cv::Point bRC = cv::Point(bottomRightX, bottomRightY);
   cv::Point bLC = cv::Point(bottomLeftX, bottomLeftY);
 
-  double width = fmin([self _distance:tRC p2:tLC], [self _distance:bRC p2:bLC]);
-  double height = fmin([self _distance:bLC p2:tLC], [self _distance:bRC p2:tRC]);
+  double width = fmin([self _distance:tLC p2:tRC], [self _distance:bLC p2:bRC]);
+  double height = fmin([self _distance:tLC p2:bLC], [self _distance:tRC p2:bRC]);
 
   // create empty image matrix with cropped and warped document width and height
   cv::Point2f croppedImage[] = {
@@ -63,7 +63,7 @@ RCT_EXPORT_METHOD(cropper:(NSURL *)originalPhotoPath
   );
 
 
-  UIImage *newImage = [self UIImageFromCVMat:output];
+  UIImage *newImage = [self convertCVMatToUIImage:output];
   NSString *base64 = [self encodeToBase64String:newImage quality:quality] ;
 
   NSString *cleaned = [base64 stringByReplacingOccurrencesOfString: @"\\s+"
@@ -85,6 +85,7 @@ RCT_EXPORT_METHOD(findDocumentCorrers:(NSURL *)filePath
   
   UIImage* image = [self pathToUIImage:filePath];
   cv::Mat orig = [self convertUIImageToCVMat:image];
+
   cv::Mat outputImage ;
   cv::Mat candy ;
   // cv::Mat lines ;
@@ -222,8 +223,7 @@ RCT_EXPORT_METHOD(findDocumentCorrers:(NSURL *)filePath
 }
 
 - (double) _distance:(cv::Point) p1 p2:(cv::Point) p2{
-    return sqrt(((p1.x - p2.x) * (p1.x - p2.x)) +
-                ((p1.y - p2.y) * (p1.y - p2.y)));
+    return sqrt(((p2.x - p1.x)*(p2.x - p1.x)) + ((p2.y - p1.y)*(p2.y - p1.y)));
 }
 
 - (std::vector<cv::Point>) OrderPoints:(std::vector<cv::Point>) ip_op_corners_orig {
@@ -280,55 +280,24 @@ RCT_EXPORT_METHOD(findDocumentCorrers:(NSURL *)filePath
     return corners;
 }
  
-
-- (cv::Mat)convertUIImageToCVMat:(UIImage *)image {
-  CGColorSpaceRef colorSpace = CGImageGetColorSpace(image.CGImage);
-  CGFloat cols = image.size.width;
-  CGFloat rows = image.size.height;
-  
-  cv::Mat cvMat(rows, cols, CV_8UC4); // 8 bits per component, 4 channels (color channels + alpha)
-  
-  CGContextRef contextRef = CGBitmapContextCreate(cvMat.data,                 // Pointer to  data
-                                                  cols,                       // Width of bitmap
-                                                  rows,                       // Height of bitmap
-                                                  8,                          // Bits per component
-                                                  cvMat.step[0],              // Bytes per row
-                                                  colorSpace,                 // Colorspace
-                                                  kCGImageAlphaNoneSkipLast |
-                                                  kCGBitmapByteOrderDefault); // Bitmap info flags
-  
-  CGContextDrawImage(contextRef, CGRectMake(0, 0, cols, rows), image.CGImage);
-  CGContextRelease(contextRef);
-  
-  return cvMat;
+- (cv::Mat)convertUIImageToCVMat:(UIImage *)image
+{
+    cv::Mat imageMat;
+    UIImageToMat(image, imageMat);
+    if (
+      image.imageOrientation == UIImageOrientationLeft
+      || image.imageOrientation == UIImageOrientationRight
+      ) {
+        cv::rotate(imageMat, imageMat, cv::ROTATE_90_CLOCKWISE);
+    }
+   
+    return imageMat;
 }
 
-- (UIImage *)UIImageFromCVMat:(cv::Mat)cvMat
+- (UIImage *)convertCVMatToUIImage:(cv::Mat)cvMat
 {
-    NSData *data = [NSData dataWithBytes:cvMat.data length:cvMat.elemSize()*cvMat.total()];
-
-    CGColorSpaceRef colorspace;
-
-    if (cvMat.elemSize() == 1)
-    {
-        colorspace = CGColorSpaceCreateDeviceGray();
-    }
-    else
-    {
-        colorspace = CGColorSpaceCreateDeviceRGB();
-    }
-
-    CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
-
-    // Create CGImage from cv::Mat
-    CGImageRef imageRef = CGImageCreate(cvMat.cols, cvMat.rows, 8, 8 * cvMat.elemSize(), cvMat.step[0], colorspace, kCGImageAlphaNone | kCGBitmapByteOrderDefault, provider, NULL, false, kCGRenderingIntentDefault);
-
-    // get uiimage from cgimage
-    UIImage *finalImage = [UIImage imageWithCGImage:imageRef];
-    CGImageRelease(imageRef);
-    CGDataProviderRelease(provider);
-    CGColorSpaceRelease(colorspace);
-    return finalImage;
+    UIImage *image = MatToUIImage(cvMat);
+    return image;
 }
 
 - (UIImage *)pathToUIImage:(NSURL *)path {
