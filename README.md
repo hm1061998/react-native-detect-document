@@ -1,5 +1,7 @@
 # react-native-detect-document
 
+[![Npm package version](https://img.shields.io/npm/v/react-native-detect-document/latest.svg?style=for-the-badge&logo=npm)](https://www.npmjs.com/package/react-native-detect-document) [![npm dev dependency version](https://img.shields.io/npm/dependency-version/react-native-detect-document/dev/react-native?color=61DAFB&logo=react&style=for-the-badge)](https://github.com/hm1061998/react-native-detect-document/blob/master/package.json)
+
 The react-native library helps you detect document in image for Android and IOS
 
 Thanks library [react-native-document-scanner-plugin](https://github.com/websitebeaver/react-native-document-scanner-plugin) gave me the idea to make this project
