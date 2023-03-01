@@ -1,33 +1,23 @@
 # react-native-detect-document
 
-The react-native library helps you detect document in image
+The react-native library helps you detect document in image for Android and IOS
+
+Thanks library [react-native-document-scanner-plugin](https://github.com/websitebeaver/react-native-document-scanner-plugin) gave me the idea to make this project
 
 ## Installation
 
 ```sh
-npm install react-native-detect-document
+npm install react-native-detect-document react-native-reanimated react-native-svg react-native-gesture-handler
 
 or
 
-yarn add react-native-detect-document
-```
-
-## Install peer dependencies
-
-```sh
-npm install react-native-reanimated react-native-svg react-native-gesture-handler
-
-or
-
-yarn add react-native-reanimated react-native-svg react-native-gesture-handler
+yarn add react-native-detect-document react-native-reanimated react-native-svg react-native-gesture-handler
 ```
 
 ## IOS
 
 ```sh
-cd ios
-
-pod install
+cd ios && pod install
 ```
 
 ## Usage
