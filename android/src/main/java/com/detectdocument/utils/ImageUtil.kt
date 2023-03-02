@@ -15,6 +15,7 @@ import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint2f
 import org.opencv.core.Point
 import org.opencv.core.Size
+import org.opencv.core.Core
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 
@@ -173,6 +174,30 @@ class ImageUtil {
 
     return croppedBitmap
   }
+
+  fun rotate(photoFilePath: String, isClockwise: Boolean): Bitmap {
+    // read image with OpenCV
+    val image = Imgcodecs.imread(photoFilePath.replace("file://", ""))
+
+    // convert image to RGB color space since OpenCV reads it using BGR color space
+    Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2BGR)
+
+    val output = Mat()
+    var value = if(isClockwise == true) Core.ROTATE_90_CLOCKWISE else Core.ROTATE_90_COUNTERCLOCKWISE
+     
+    Core.rotate(image, output, value)
+
+    // convert output image matrix to bitmap
+    val croppedBitmap = Bitmap.createBitmap(
+      output.cols(),
+      output.rows(),
+      Bitmap.Config.ARGB_8888
+    )
+    Utils.matToBitmap(output, croppedBitmap)
+
+    return croppedBitmap
+  }
+
 
   /**
    * get bitmap image from file uri

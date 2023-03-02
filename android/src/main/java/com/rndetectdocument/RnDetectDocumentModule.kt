@@ -53,6 +53,21 @@ class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
+  fun rotateImage(originalPhotoPath: String, isClockwise: Boolean?, promise: Promise) {
+    val photo: Bitmap = ImageUtil().rotate(originalPhotoPath.replace("file://", ""), isClockwise ?: true)
+
+    val result: WritableMap = WritableNativeMap()
+
+    val base64 = photo.toBase64(100)
+
+    result.putString("image", base64)
+    result.putInt("width", photo.width.toInt())
+    result.putInt("height", photo.height.toInt())
+
+    promise.resolve(result)
+  }
+
+  @ReactMethod
   fun cropper(originalPhotoPath: String, points: ReadableMap, quality: Int, promise: Promise) {
     val photo: Bitmap = ImageUtil().cropv2(originalPhotoPath.replace("file://", ""), points)
 

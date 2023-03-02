@@ -11,6 +11,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Platform,
+  NativeModules,
 } from 'react-native';
 import RNDDM from 'react-native-detect-document';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
@@ -18,6 +19,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 // import CropperView from "./CropperView";
 const { findDocumentCorrers, CropperView, getResultImage } = RNDDM;
 
+const nativeMethods = NativeModules.RnDetectDocument;
 const { width } = Dimensions.get('window');
 export default function App() {
   const [responseImg, setResponseImg] = React.useState(null);
@@ -28,7 +30,7 @@ export default function App() {
   const [scrollEnabled, setscrollEnabled] = React.useState(true);
   const customCrop = React.useRef();
 
-  // console.log('CropperView', RNDDM);
+  console.log('CropperView', nativeMethods);
 
   const takePicture = async () => {
     try {
@@ -71,8 +73,13 @@ export default function App() {
 
   const crop = async () => {
     // console.log('loading');
-    const res = await customCrop.current.crop();
-    // console.log('end', res);
+    // const res = await customCrop.current.crop();
+    const { image, width, height } = await nativeMethods.rotateImage(
+      responseImg.realPath,
+      false
+    );
+    console.log('end', width, height);
+    setResultCrop(image);
   };
 
   const updateImage = (res) => {

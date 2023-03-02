@@ -14,6 +14,33 @@ int cropperOffsetWhenCornersNotFound = 100;
 
 RCT_EXPORT_MODULE()
 
+RCT_EXPORT_METHOD(rotateImage:(NSURL *)originalPhotoPath
+                  isClockwise:(BOOL)isClockwise
+                  resolvePromise:(RCTPromiseResolveBlock)resolve
+                  rejecter: (RCTPromiseRejectBlock)reject )
+{
+  UIImage* image = [self pathToUIImage:originalPhotoPath];
+  cv::Mat orig = [self convertUIImageToCVMat:image];
+  cv::Mat output;
+  auto value = isClockwise ? cv::ROTATE_90_CLOCKWISE: cv::ROTATE_90_COUNTERCLOCKWISE;
+  cv::rotate(orig, output, value);
+
+  UIImage *newImage = [self convertCVMatToUIImage:output];
+  NSString *base64 = [self encodeToBase64String:newImage quality:100] ;
+
+  NSString *cleaned = [base64 stringByReplacingOccurrencesOfString: @"\\s+"
+                                                             withString: @""
+                                                                options: NSRegularExpressionSearch
+                                                                  range: NSMakeRange(0, [base64 length])];
+
+  NSDictionary *info = @{
+                @"image":cleaned,
+                @"width":@(newImage.size.width),
+                @"height":@(newImage.size.height),
+              };
+  resolve(info);
+}
+
 RCT_EXPORT_METHOD(cropper:(NSURL *)originalPhotoPath
                   points:(NSDictionary *)points
                   quality:(int)quality
@@ -109,7 +136,7 @@ RCT_EXPORT_METHOD(findDocumentCorrers:(NSURL *)filePath
 
   cv::cvtColor(outputImage, gray, cv::COLOR_BGR2GRAY);
   cv::GaussianBlur(gray, blur, cv::Size(5, 5), 0);
-  cv::copyMakeBorder(blur, blur, 5, 5, 5, 5, cv::BORDER_CONSTANT);
+  cv::copyMakeBorder(blur, blur, 2, 2, 2, 2, cv::BORDER_CONSTANT);
 
   cv::Canny(blur, candy, 20, 200, 3);
   cv::dilate(
@@ -143,7 +170,7 @@ RCT_EXPORT_METHOD(findDocumentCorrers:(NSURL *)filePath
 
   float height = candy.cols;
   float width = candy.rows;
-  double MAX_COUNTOUR_AREA = (width - 10) * (height - 10);
+  double MAX_COUNTOUR_AREA = (width - 4) * (height - 4);
     
   std::vector<std::vector<cv::Point> > approxContoursFilter;
 
