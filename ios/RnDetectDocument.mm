@@ -41,9 +41,9 @@ RCT_EXPORT_METHOD(rotateImage:(NSURL *)originalPhotoPath
   resolve(info);
 }
 
-RCT_EXPORT_METHOD(cropper:(NSURL *)originalPhotoPath
+RCT_EXPORT_METHOD(cropImage:(NSURL *)originalPhotoPath
                   points:(NSDictionary *)points
-                  quality:(int)quality
+                  quality:(int)quality 
                   resolvePromise:(RCTPromiseResolveBlock)resolve
                   rejecter: (RCTPromiseRejectBlock)reject )
 {
@@ -105,7 +105,7 @@ RCT_EXPORT_METHOD(cropper:(NSURL *)originalPhotoPath
 }
 
 
-RCT_EXPORT_METHOD(findDocumentCorrers:(NSURL *)filePath
+RCT_EXPORT_METHOD(detectFile:(NSURL *)filePath
                 resolvePromise:(RCTPromiseResolveBlock)resolve
                 rejecter: (RCTPromiseRejectBlock)reject )
 {
@@ -136,7 +136,7 @@ RCT_EXPORT_METHOD(findDocumentCorrers:(NSURL *)filePath
 
   cv::cvtColor(outputImage, gray, cv::COLOR_BGR2GRAY);
   cv::GaussianBlur(gray, blur, cv::Size(5, 5), 0);
-  cv::copyMakeBorder(blur, blur, 2, 2, 2, 2, cv::BORDER_CONSTANT);
+  cv::copyMakeBorder(blur, blur, 5, 5, 5, 5, cv::BORDER_CONSTANT);
 
   cv::Canny(blur, candy, 20, 200, 3);
   cv::dilate(
@@ -170,7 +170,7 @@ RCT_EXPORT_METHOD(findDocumentCorrers:(NSURL *)filePath
 
   float height = candy.cols;
   float width = candy.rows;
-  double MAX_COUNTOUR_AREA = (width - 4) * (height - 4);
+  double MAX_COUNTOUR_AREA = (width - 10) * (height - 10);
     
   std::vector<std::vector<cv::Point> > approxContoursFilter;
 
@@ -243,7 +243,6 @@ RCT_EXPORT_METHOD(findDocumentCorrers:(NSURL *)filePath
                   @"corners":corners,
                   @"width":@(image.size.width),
                   @"height":@(image.size.height),
-                
                   };
 
   resolve(info);
@@ -337,7 +336,7 @@ RCT_EXPORT_METHOD(findDocumentCorrers:(NSURL *)filePath
   return [UIImage imageWithData:data];
 }
 
-- (NSString *)encodeToBase64String:(UIImage *)image quality:(int)quality{
+- (NSString *)encodeToBase64String:(UIImage *)image quality:(int) quality{
  return [UIImageJPEGRepresentation(image, quality? quality/100 : 1) base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
 }
 

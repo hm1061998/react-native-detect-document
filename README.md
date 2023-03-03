@@ -38,7 +38,7 @@ import {
 import RNDDM from 'react-native-detect-document';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 // import CropperView from "./CropperView";
-const { findDocumentCorrers, CropperView } = RNDDM;
+const { detectFile, CropperView } = RNDDM;
 
 export default function App() {
   const [responseImg, setResponseImg] = React.useState(null);
@@ -60,7 +60,7 @@ export default function App() {
         ios: response.path,
         android: `file://${response.realPath}`,
       });
-      const { corners, width, height } = await findDocumentCorrers(filePath);
+      const { corners, width, height } = await detectFile(filePath);
 
       // console.log('data',corners);
       const rectangle = {

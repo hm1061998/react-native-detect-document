@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import * as React from 'react';
 import { Dimensions, Image, View, StyleSheet } from 'react-native';
 import Svg, { Polygon } from 'react-native-svg';
@@ -10,7 +9,7 @@ import {
   PanGestureHandler,
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
-import { cropper } from '../helpers/detectorAndCropper';
+import { cropImage } from '../helpers/detectorAndCropper';
 import {
   useCustomAnimatedGestureHandler,
   useTranslateAnimatedStyle,
@@ -129,7 +128,7 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
           width: width,
         };
 
-        const res = await cropper(initialImage, coordinates, quality);
+        const res = await cropImage(initialImage, coordinates, quality);
         updateImage?.(res.image, coordinates);
         return { image: res.image, coordinates };
       },

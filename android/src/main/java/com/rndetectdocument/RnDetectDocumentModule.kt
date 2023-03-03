@@ -19,7 +19,6 @@ import org.opencv.core.Mat
 import com.detectdocument.utils.ImageUtil
 import com.detectdocument.models.Quad
 import com.detectdocument.DocumentDetector
-import com.detectdocument.DocumentDetectorV2
 import com.detectdocument.extensions.move
 import com.detectdocument.extensions.toBase64
 import com.detectdocument.enums.QuadCorner
@@ -45,7 +44,7 @@ class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
         "error starting OpenCV: ${exception.message}"
       )
     }
-    val result = DocumentDetectorV2().findDocument(originalPhotoPath.replace("file://", ""))
+    val result = DocumentDetector().findDocument(originalPhotoPath.replace("file://", ""))
 
 
 
@@ -68,8 +67,8 @@ class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun cropper(originalPhotoPath: String, points: ReadableMap, quality: Int, promise: Promise) {
-    val photo: Bitmap = ImageUtil().cropv2(originalPhotoPath.replace("file://", ""), points)
+  fun cropImage(originalPhotoPath: String, points: ReadableMap, quality: Int?, promise: Promise) {
+    val photo: Bitmap = ImageUtil().crop(originalPhotoPath.replace("file://", ""), points)
 
     val result: WritableMap = WritableNativeMap()
 
@@ -81,7 +80,7 @@ class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun findDocumentCorrers(originalPhotoPath: String, promise: Promise) {
+  fun detectFile(originalPhotoPath: String, promise: Promise) {
     try {
       // load OpenCV
       System.loadLibrary("opencv_java4")
@@ -114,7 +113,7 @@ class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
   }
 
   private fun getDocumentCorners(photo: Bitmap): List<Point> {
-    val cornerPoints: List<Point>? = DocumentDetectorV2().findDocumentCorners(photo)
+    val cornerPoints: List<Point>? = DocumentDetector().findDocumentCorners(photo)
 
     // if cornerPoints is null then default the corners to the photo bounds with a margin
     return cornerPoints ?: listOf(

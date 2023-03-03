@@ -17,7 +17,7 @@ import RNDDM from 'react-native-detect-document';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 // import CropperView from "./CropperView";
-const { findDocumentCorrers, CropperView, getResultImage } = RNDDM;
+const { detectFile, CropperView, getResultImage } = RNDDM;
 
 const nativeMethods = NativeModules.RnDetectDocument;
 const { width } = Dimensions.get('window');
@@ -43,18 +43,18 @@ export default function App() {
       // const base64 = await ImgToBase64.getBase64String(response.path);
 
       //            setLoading(true)
-      //            const res = await getResultImage(response.realPath);
-      //            setLoading(false)
-      //            setresultImage(res);
+      // const res = await getResultImage(response.realPath);
+      // setLoading(false);
+      // setresultImage(res);
       // setResultCrop(image);
       // console.log('data',corners);
 
-      setLoading(true);
+      // setLoading(true);
       const filePath = Platform.select({
         ios: response.path,
         android: `file://${response.realPath}`,
       });
-      const { corners, width, height } = await findDocumentCorrers(filePath);
+      const { corners, width, height } = await detectFile(filePath);
       setLoading(false);
       const rectangle = {
         topLeft: corners.TOP_LEFT,
@@ -73,13 +73,13 @@ export default function App() {
 
   const crop = async () => {
     // console.log('loading');
-    // const res = await customCrop.current.crop();
-    const { image, width, height } = await nativeMethods.rotateImage(
-      responseImg.realPath,
-      false
-    );
-    console.log('end', width, height);
-    setResultCrop(image);
+    const res = await customCrop.current.crop();
+    // const { image, width, height } = await nativeMethods.rotateImage(
+    //   responseImg.realPath,
+    //   false
+    // );
+    // console.log('end', width, height);
+    // setResultCrop(image);
   };
 
   const updateImage = (res) => {
@@ -127,7 +127,7 @@ export default function App() {
                 <CropperView
                   updateImage={updateImage}
                   rectangleCoordinates={responseImg.rectangle}
-                  initialImage={`file://${responseImg.realPath}`}
+                  initialImage={responseImg.realPath}
                   height={responseImg.height}
                   width={responseImg.width}
                   ref={customCrop}

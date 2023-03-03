@@ -6,18 +6,18 @@ import type {
   getImageResults,
 } from './types';
 import {
-  findDocumentCorrers,
-  cropper,
+  detectFile,
+  cropImage,
   getResultImage,
 } from './helpers/detectorAndCropper';
 
 const RnDetectDocument = {
   CropperView,
-  findDocumentCorrers,
-  cropper,
+  detectFile,
+  cropImage,
   getResultImage,
 };
 
-export { CropperView, findDocumentCorrers, cropper, getResultImage };
+export { CropperView, detectFile, cropImage, getResultImage };
 export type { DocumentCorrersResults, CropperResults, getImageResults };
 export default RnDetectDocument;
