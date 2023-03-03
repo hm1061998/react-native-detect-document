@@ -31,13 +31,14 @@ const getViewHeight = (
 ) => {
   const imageRatio = width / height;
   let _viewHeight = 0;
-  if (height > width) {
-    // if user takes the photo in portrait
-    _viewHeight = Math.round(screenWidth / imageRatio);
-  } else {
-    // if user takes the photo in landscape
-    _viewHeight = Math.round(screenWidth * imageRatio);
-  }
+  // if (height > width) {
+  //   // if user takes the photo in portrait
+  //   _viewHeight = Math.round(screenWidth / imageRatio);
+  // } else {
+  //   // if user takes the photo in landscape
+  //   _viewHeight = Math.round(screenWidth * imageRatio);
+  // }
+  _viewHeight = Math.round(screenWidth / imageRatio);
   _viewHeight = Math.min(_viewHeight, layout.height);
   _viewHeight -= 50;
 
@@ -48,13 +49,14 @@ const getViewHeight = (
 const getViewWidth = (width: number, height: number, viewHeight: number) => {
   const imageRatio = width / height;
   let _viewWidth = 0;
-  if (height > width) {
-    // if user takes the photo in portrait
-    _viewWidth = Math.round(viewHeight * imageRatio) + 50;
-  } else {
-    // if user takes the photo in landscape
-    _viewWidth = Math.round(viewHeight / imageRatio) + 50;
-  }
+  // if (height > width) {
+  //   // if user takes the photo in portrait
+  //   _viewWidth = Math.round(viewHeight * imageRatio) + 50;
+  // } else {
+  //   // if user takes the photo in landscape
+  //   _viewWidth = Math.round(viewHeight / imageRatio) + 50;
+  // }
+  _viewWidth = Math.round(viewHeight * imageRatio) + 50;
   _viewWidth -= 50;
 
   return _viewWidth;
@@ -80,6 +82,11 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
   ) => {
     const viewHeight = getViewHeight(width, height, layout);
     const viewWidth = getViewWidth(width, height, viewHeight);
+    const isCrop = React.useRef(true);
+    const topLeftPrev = React.useRef({ x: 0, y: 0 });
+    const topRightPrev = React.useRef({ x: viewWidth, y: 0 });
+    const bottomLeftPrev = React.useRef({ x: 0, y: viewHeight });
+    const bottomRightPrev = React.useRef({ x: viewWidth, y: viewHeight });
 
     //calc points of document on screen
     const optionsView = { viewWidth, viewHeight, width, height };
@@ -92,7 +99,7 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
     const topRight = useSharedValueXY(
       rectangleCoordinates?.topRight,
       optionsView,
-      { x: screenWidth - 100, y: 100 }
+      { x: viewWidth - 100, y: 100 }
     );
 
     const bottomLeft = useSharedValueXY(
@@ -104,7 +111,7 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
     const bottomRight = useSharedValueXY(
       rectangleCoordinates?.bottomRight,
       optionsView,
-      { x: screenWidth - 100, y: viewHeight - 100 }
+      { x: viewWidth - 100, y: viewHeight - 100 }
     );
     //end calc
 
@@ -131,6 +138,34 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
         const res = await cropImage(initialImage, coordinates, quality);
         updateImage?.(res.image, coordinates);
         return { image: res.image, coordinates };
+      },
+      toogleCropMode: () => {
+        const newTopLeft = { x: topLeft.x.value, y: topLeft.y.value };
+        const newTopRight = { x: topRight.x.value, y: topRight.y.value };
+        const newBottomRight = {
+          x: bottomRight.x.value,
+          y: bottomRight.y.value,
+        };
+        const newBottomLeft = { x: bottomLeft.x.value, y: bottomLeft.y.value };
+
+        topLeft.x.value = topLeftPrev.current.x;
+        topLeft.y.value = topLeftPrev.current.y;
+        topRight.x.value = topRightPrev.current.x;
+        topRight.y.value = topRightPrev.current.y;
+        bottomRight.x.value = bottomRightPrev.current.x;
+        bottomRight.y.value = bottomRightPrev.current.y;
+        bottomLeft.x.value = bottomLeftPrev.current.x;
+        bottomLeft.y.value = bottomLeftPrev.current.y;
+
+        topLeftPrev.current = newTopLeft;
+        topRightPrev.current = newTopRight;
+        bottomRightPrev.current = newBottomRight;
+        bottomLeftPrev.current = newBottomLeft;
+
+        isCrop.current = !isCrop.current;
+      },
+      getStatus: () => {
+        return isCrop.current;
       },
     }));
 

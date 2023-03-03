@@ -327,8 +327,7 @@ RCT_EXPORT_METHOD(detectFile:(NSURL *)filePath
 }
 
 - (UIImage *)pathToUIImage:(NSURL *)path {
-  NSString *originalBase64 = [[NSData dataWithContentsOfURL:path] base64EncodedStringWithOptions:0];
-  return [self decodeBase64ToImage:originalBase64];
+  return [UIImage imageWithData:[NSData dataWithContentsOfURL:path]];
 }
 
 - (UIImage *)decodeBase64ToImage:(NSString *)strEncodeData {

@@ -73,13 +73,13 @@ export default function App() {
 
   const crop = async () => {
     // console.log('loading');
-    const res = await customCrop.current.crop();
-    // const { image, width, height } = await nativeMethods.rotateImage(
-    //   responseImg.realPath,
-    //   false
-    // );
-    // console.log('end', width, height);
-    // setResultCrop(image);
+    // const res = await customCrop.current.crop();
+    const { image, width, height } = await nativeMethods.rotateImage(
+      responseImg.realPath,
+      false
+    );
+    console.log('end', width, height);
+    setResultCrop(image);
   };
 
   const updateImage = (res) => {

@@ -42,7 +42,7 @@ export const rotateImage = (
   path: string,
   isClockwise?: boolean
 ): Promise<RotateResults | never> => {
-  return RnDDM.rotateImage(path, isClockwise);
+  return RnDDM.rotateImage(path, isClockwise || true);
 };
 
 export const getResultImage = (
