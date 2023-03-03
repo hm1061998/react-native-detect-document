@@ -4,6 +4,7 @@ import type {
   DocumentCorrersResults,
   CropperResults,
   getImageResults,
+  RotateResults,
 } from '../types';
 
 const LINKING_ERROR =
@@ -35,6 +36,13 @@ export const cropImage = (
   quality?: number
 ): Promise<CropperResults | never> => {
   return RnDDM.cropImage(path, points, quality || 100);
+};
+
+export const rotateImage = (
+  path: string,
+  isClockwise?: boolean
+): Promise<RotateResults | never> => {
+  return RnDDM.rotateImage(path, isClockwise);
 };
 
 export const getResultImage = (

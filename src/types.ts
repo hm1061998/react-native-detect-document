@@ -17,6 +17,11 @@ export interface CropperResults {
   image: string;
 }
 
+export interface RotateResults extends CropperResults {
+  width: number;
+  height: number;
+}
+
 export interface PointProps {
   x: number;
   y: number;
