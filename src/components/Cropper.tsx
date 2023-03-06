@@ -115,17 +115,18 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
     );
     //end calc
 
+    const viewCoordinatesToImageCoordinates = (corner: {
+      x: { value: number };
+      y: { value: number };
+    }) => {
+      return {
+        x: (corner.x.value / viewWidth) * width,
+        y: (corner.y.value / viewHeight) * height,
+      };
+    };
+
     React.useImperativeHandle(ref, () => ({
       crop: async (quality?: number) => {
-        const viewCoordinatesToImageCoordinates = (corner: {
-          x: { value: number };
-          y: { value: number };
-        }) => {
-          return {
-            x: (corner.x.value / viewWidth) * width,
-            y: (corner.y.value / viewHeight) * height,
-          };
-        };
         const coordinates = {
           topLeft: viewCoordinatesToImageCoordinates(topLeft),
           topRight: viewCoordinatesToImageCoordinates(topRight),
@@ -169,6 +170,17 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
       },
     }));
 
+    const onChange = (key: string) => {
+      const coordinates = {
+        topLeft: viewCoordinatesToImageCoordinates(topLeft),
+        topRight: viewCoordinatesToImageCoordinates(topRight),
+        bottomLeft: viewCoordinatesToImageCoordinates(bottomLeft),
+        bottomRight: viewCoordinatesToImageCoordinates(bottomRight),
+      };
+
+      onHander?.(key, coordinates);
+    };
+
     //create event listener drag point
     const panResponderTopLeft = useCustomAnimatedGestureHandler(
       topLeft,
@@ -176,7 +188,7 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
         viewWidth,
         viewHeight,
       },
-      onHander
+      onChange
     );
 
     const panResponderTopRight = useCustomAnimatedGestureHandler(
@@ -185,7 +197,7 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
         viewWidth,
         viewHeight,
       },
-      onHander
+      onChange
     );
 
     const panResponderBottomRight = useCustomAnimatedGestureHandler(
@@ -194,7 +206,7 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
         viewWidth,
         viewHeight,
       },
-      onHander
+      onChange
     );
 
     const panResponderBottomLeft = useCustomAnimatedGestureHandler(
@@ -203,7 +215,7 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
         viewWidth,
         viewHeight,
       },
-      onHander
+      onChange
     );
 
     //create style of points

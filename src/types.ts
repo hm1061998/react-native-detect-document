@@ -50,7 +50,7 @@ export interface CropperViewProps {
   overlayStrokeWidth: string;
   handlerColor: string;
   updateImage?: (image: string, points: DataImageResult) => void;
-  onHander: (key: string) => void;
+  onHander: (key: string, corners: RectangleProps) => void;
 }
 
 export interface CropperProps extends CropperViewProps {
