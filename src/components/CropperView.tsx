@@ -14,6 +14,7 @@ const CropperView = React.forwardRef<CropperHandle, CropperViewProps>(
         }
       | any
     >(null);
+
     return (
       <View
         onLayout={(e) => {
@@ -28,7 +29,12 @@ const CropperView = React.forwardRef<CropperHandle, CropperViewProps>(
         }}
       >
         {isReady ? (
-          <Cropper {...props} ref={ref} layout={layout} />
+          <Cropper
+            {...props}
+            ref={ref}
+            layout={layout}
+            key={`${layout.width}-${layout.height}`}
+          />
         ) : (
           <ActivityIndicator size="large" color="#00ff00" />
         )}
