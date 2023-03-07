@@ -30,7 +30,7 @@ export default function App() {
   const [scrollEnabled, setscrollEnabled] = React.useState(true);
   const customCrop = React.useRef();
 
-  console.log('CropperView', nativeMethods);
+  // console.log('CropperView', nativeMethods);
 
   const takePicture = async () => {
     try {

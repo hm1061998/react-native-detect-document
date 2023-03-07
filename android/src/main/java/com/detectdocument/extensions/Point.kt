@@ -24,6 +24,26 @@ fun Point.distance(point: Point): Double {
   return sqrt((point.x - x).pow(2) + (point.y - y).pow(2))
 }
 
+fun Point.calcPoint(width: Double, height: Double): Point {
+  var dx = x
+  var dy = y
+
+  if(dx < 0.toDouble() ){
+    dx = 0.toDouble()
+  }
+  else if(dx > width){
+    dx = width
+  }
+
+  if(dy < 0.toDouble() ){
+    dy = 0.toDouble()
+  }
+  else if (dy > height){
+   dy = height
+  }
+  return Point(dx, dy)
+}
+
 /**
  * offset the OpenCV point by (dx, dy)
  *

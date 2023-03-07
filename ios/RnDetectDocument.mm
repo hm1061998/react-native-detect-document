@@ -388,6 +388,16 @@ RCT_EXPORT_METHOD(detectFile:(NSURL *)filePath
     return sqrt(((p2.x - p1.x)*(p2.x - p1.x)) + ((p2.y - p1.y)*(p2.y - p1.y)));
 }
 
+- (double) _calcPoint:(double) x limit:(double) limit{
+    if(x < 0){
+      return 0;
+    }
+    else if (x > limit) {
+      return limit;
+    }
+    return x;
+}
+
 - (std::vector<cv::Point>) OrderPoints:(std::vector<cv::Point>) ip_op_corners_orig {
     if(ip_op_corners_orig.size()<4){
       return ip_op_corners_orig;
@@ -435,10 +445,10 @@ RCT_EXPORT_METHOD(detectFile:(NSURL *)filePath
     double ratio = photo.size.height / shrunkImageHeight;
     double borderSize = 10 * ratio;
 
-    corners[0] = cv::Point(ip_op_corners_orig[0].x * ratio - borderSize, ip_op_corners_orig[0].y * ratio - borderSize); //topLeft
-    corners[1] = cv::Point(ip_op_corners_orig[1].x * ratio , ip_op_corners_orig[1].y * ratio - borderSize); //topRight
-    corners[2] = cv::Point(ip_op_corners_orig[2].x * ratio, ip_op_corners_orig[2].y * ratio); //bottomRight
-    corners[3] = cv::Point(ip_op_corners_orig[3].x * ratio - borderSize, ip_op_corners_orig[3].y * ratio); //bottomLeft
+    corners[0] = cv::Point([self _calcPoint:ip_op_corners_orig[0].x * ratio - borderSize limit:photo.size.width], [self _calcPoint:ip_op_corners_orig[0].y * ratio - borderSize limit:photo.size.height]); //topLeft
+    corners[1] = cv::Point([self _calcPoint:ip_op_corners_orig[1].x * ratio + borderSize / 2 limit:photo.size.width], [self _calcPoint:ip_op_corners_orig[1].y * ratio - borderSize limit:photo.size.height]); //topRight
+    corners[2] = cv::Point([self _calcPoint:ip_op_corners_orig[2].x * ratio + borderSize / 2 limit:photo.size.width], [self _calcPoint:ip_op_corners_orig[2].y * ratio limit:photo.size.height]); //bottomRight
+    corners[3] = cv::Point([self _calcPoint:ip_op_corners_orig[3].x * ratio - borderSize limit:photo.size.width], [self _calcPoint:ip_op_corners_orig[3].y * ratio + borderSize / 2 limit:photo.size.height]); //bottomLeft
 
     return corners;
 }

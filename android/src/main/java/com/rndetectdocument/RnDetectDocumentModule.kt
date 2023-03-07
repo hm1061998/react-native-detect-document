@@ -20,6 +20,7 @@ import com.detectdocument.utils.ImageUtil
 import com.detectdocument.models.Quad
 import com.detectdocument.DocumentDetector
 import com.detectdocument.extensions.move
+import com.detectdocument.extensions.calcPoint
 import com.detectdocument.extensions.toBase64
 import com.detectdocument.enums.QuadCorner
 
@@ -142,10 +143,18 @@ class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
       val (topLeft, topRight, bottomLeft, bottomRight) = cornerPoints
 
       return listOf(
-              Point(topLeft.x - borderSize, topLeft.y - borderSize),
-              Point(topRight.x, topRight.y - borderSize),
-              Point(bottomLeft.x - borderSize, bottomLeft.y),
-              Point(bottomRight.x, bottomRight.y)
+              Point(topLeft.x - borderSize, topLeft.y - borderSize).calcPoint(
+                  photo.width.toDouble(),
+                  photo.height.toDouble()),
+              Point(topRight.x + borderSize / 2, topRight.y - borderSize).calcPoint(
+                  photo.width.toDouble(),
+                  photo.height.toDouble()),
+              Point(bottomLeft.x - borderSize, bottomLeft.y + borderSize / 2).calcPoint(
+                  photo.width.toDouble(),
+                  photo.height.toDouble()),
+              Point(bottomRight.x + borderSize / 2, bottomRight.y ).calcPoint(
+                  photo.width.toDouble(),
+                  photo.height.toDouble())
             )
     }
   }
