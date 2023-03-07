@@ -42,10 +42,6 @@ export default function App() {
       });
       // const base64 = await ImgToBase64.getBase64String(response.path);
 
-      //            setLoading(true)
-      // const res = await getResultImage(response.realPath);
-      // setLoading(false);
-      // setresultImage(res);
       // setResultCrop(image);
       // console.log('data',corners);
 
@@ -54,6 +50,11 @@ export default function App() {
         ios: response.path,
         android: `file://${response.realPath}`,
       });
+
+      // setLoading(true);
+      // const res = await getResultImage(filePath);
+      // setLoading(false);
+      // setresultImage(res);
       const { corners, width, height } = await detectFile(filePath);
       setLoading(false);
       const rectangle = {
@@ -73,13 +74,13 @@ export default function App() {
 
   const crop = async () => {
     // console.log('loading');
-    // const res = await customCrop.current.crop();
-    const { image, width, height } = await nativeMethods.rotateImage(
-      responseImg.realPath,
-      false
-    );
-    console.log('end', width, height);
-    setResultCrop(image);
+    const res = await customCrop.current.crop();
+    // const { image, width, height } = await nativeMethods.rotateImage(
+    //   responseImg.realPath,
+    //   false
+    // );
+    // console.log('end', width, height);
+    // setResultCrop(image);
   };
 
   const updateImage = (res) => {

@@ -115,25 +115,39 @@ class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
   private fun getDocumentCorners(photo: Bitmap): List<Point> {
     val cornerPoints: List<Point>? = DocumentDetector().findDocumentCorners(photo)
 
-    // if cornerPoints is null then default the corners to the photo bounds with a margin
-    return cornerPoints ?: listOf(
-      Point(0.0, 0.0).move(
-        cropperOffsetWhenCornersNotFound,
-        cropperOffsetWhenCornersNotFound
-      ),
-      Point(photo.width.toDouble(), 0.0).move(
-        -cropperOffsetWhenCornersNotFound,
-        cropperOffsetWhenCornersNotFound
-      ),
-      Point(0.0, photo.height.toDouble()).move(
-        cropperOffsetWhenCornersNotFound,
-        -cropperOffsetWhenCornersNotFound
-      ),
-      Point(photo.width.toDouble(), photo.height.toDouble()).move(
-        -cropperOffsetWhenCornersNotFound,
-        -cropperOffsetWhenCornersNotFound
-      )
-    )
+  // if cornerPoints is null then default the corners to the photo bounds with a margin
+    if(cornerPoints == null) {
+      return listOf(
+            Point(0.0, 0.0).move(
+              cropperOffsetWhenCornersNotFound,
+              cropperOffsetWhenCornersNotFound
+            ),
+            Point(photo.width.toDouble(), 0.0).move(
+              -cropperOffsetWhenCornersNotFound,
+              cropperOffsetWhenCornersNotFound
+            ),
+            Point(0.0, photo.height.toDouble()).move(
+              cropperOffsetWhenCornersNotFound,
+              -cropperOffsetWhenCornersNotFound
+            ),
+            Point(photo.width.toDouble(), photo.height.toDouble()).move(
+              -cropperOffsetWhenCornersNotFound,
+              -cropperOffsetWhenCornersNotFound
+            )
+          )
+    }
+    else {
+      val ratio = photo.height.toDouble() / 500.0
+      val borderSize = 10.0 * ratio
+      val (topLeft, topRight, bottomLeft, bottomRight) = cornerPoints
+
+      return listOf(
+              Point(topLeft.x - borderSize, topLeft.y - borderSize),
+              Point(topRight.x, topRight.y - borderSize),
+              Point(bottomLeft.x - borderSize, bottomLeft.y),
+              Point(bottomRight.x, bottomRight.y)
+            )
+    }
   }
 
   companion object {

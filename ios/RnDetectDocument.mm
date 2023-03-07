@@ -105,6 +105,131 @@ RCT_EXPORT_METHOD(cropImage:(NSURL *)originalPhotoPath
 }
 
 
+RCT_EXPORT_METHOD(getResultImage:(NSURL *)filePath
+                resolvePromise:(RCTPromiseResolveBlock)resolve
+                rejecter: (RCTPromiseRejectBlock)reject)
+{
+   UIImage* image = [self pathToUIImage:filePath];
+  cv::Mat orig = [self convertUIImageToCVMat:image];
+
+  cv::Mat outputImage ;
+  cv::Mat candy ;
+  // cv::Mat lines ;
+  cv::Mat gray ;
+  cv::Mat blur ;
+
+  cv::resize(
+    orig,
+    outputImage,
+    cv::Size(
+      image.size.width / image.size.height * shrunkImageHeight,
+      shrunkImageHeight)
+    );
+
+  cv::morphologyEx(
+    outputImage,
+    outputImage,
+    cv::MORPH_CLOSE,
+    cv::Mat::ones(cv::Size(9, 9),CV_8U)
+  );
+
+  cv::cvtColor(outputImage, gray, cv::COLOR_BGR2GRAY);
+  cv::GaussianBlur(gray, blur, cv::Size(5, 5), 0);
+  cv::copyMakeBorder(blur, blur, 5, 5, 5, 5, cv::BORDER_CONSTANT);
+
+  cv::Canny(blur, candy, 50, 200, 3);
+  cv::dilate(
+    candy,
+    candy,
+    cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3))
+  );
+
+  std::vector<cv::Vec2f> lines;
+  cv::HoughLines(candy, lines, 1, 3.14 / 180, 150); // runs the actual detection
+  cv::Mat newLine = cv::Mat::ones(cv::Size(candy.cols, candy.rows), CV_8U);
+
+  for( size_t i = 0; i < lines.size(); i++ ) {
+    float rho = lines[i][0];
+    float theta = lines[i][1];
+    double a = cos(theta), b = sin(theta);
+    double x0 = a*rho, y0 = b*rho;
+    cv::Point pt1(cvRound(x0 + 1000*(-b)), cvRound(y0 + 1000*(a)));
+    cv::Point pt2(cvRound(x0 - 1000*(-b)), cvRound(y0 - 1000*(a)));
+    cv::line(newLine, pt1, pt2, cv::Scalar(255,0,0), 1, 8);
+  }
+
+  cv::Canny(newLine, newLine, 50, 200, 3);
+  cv::dilate(
+    newLine,
+    newLine,
+    cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3))
+  );
+
+  std::vector<std::vector<cv::Point> > approxContours = [self findContours:newLine check: false] ;
+
+  float height = candy.cols;
+  float width = candy.rows;
+  double MAX_COUNTOUR_AREA = (width - 10) * (height - 10);
+    
+  std::vector<std::vector<cv::Point> > approxContoursFilter;
+
+  for (size_t i = 0; i < approxContours.size(); i++){
+      if(
+        approxContours[i].size() > 2
+        && cv::contourArea(approxContours[i]) < MAX_COUNTOUR_AREA
+        && cv::contourArea(approxContours[i]) > 10000){
+          approxContoursFilter.push_back(approxContours[i]);
+      }
+    }
+
+  // cv::Mat newMat = cv::Mat::ones(cv::Size(candy.cols, candy.rows), CV_8U);
+  // cv::bitwise_not(newMat, newMat);
+
+  // cv::drawContours(newMat, approxContours, -1, cv::Scalar(0.0, 255.0, 0.0), -1);
+
+  std::vector<std::vector<cv::Point> > approxContoursFinal = [self findContours:newLine check: true] ;
+  std::vector<std::vector<cv::Point> > approxContoursFinalFilter;
+
+  std::vector<std::vector<cv::Point> > dataList;
+  std::vector<cv::Point> largestArea;
+  double maxArea = 0;
+   for (size_t i = 0; i < approxContoursFinal.size(); i++){
+      if(
+        approxContoursFinal[i].size() == 4
+        && cv::contourArea(approxContoursFinal[i]) < MAX_COUNTOUR_AREA
+        && cv::contourArea(approxContoursFinal[i]) > 10000
+        && cv::isContourConvex(approxContoursFinal[i])
+        && cv::contourArea(approxContoursFinal[i]) > maxArea){
+           largestArea = approxContoursFinal[i];
+           maxArea = cv::contourArea(approxContoursFinal[i]);
+           
+      }
+    }
+
+  dataList.push_back(largestArea);
+  cv::Mat new2 = cv::Mat::ones(cv::Size(candy.cols, candy.rows), CV_8U);
+  cv::bitwise_not(new2, new2);
+
+  cv::drawContours(new2, dataList, -1, cv::Scalar(0.0, 255.0, 0.0), 0);
+   NSString *base64OriginImage = [self convertMatToBase64:orig];
+   NSString *base64OBlurImage = [self convertMatToBase64:blur];
+   NSString *base64OCandy = [self convertMatToBase64:newLine];
+   NSString *base64ONewImage = [self convertMatToBase64:new2];
+  
+
+
+      NSDictionary *info = @{
+                  @"image":base64OriginImage,
+                  @"blur":base64OBlurImage,
+                  @"candy":base64OCandy,
+                  @"newImage":base64ONewImage,
+                  };
+
+  
+
+  resolve(info);
+}
+
 RCT_EXPORT_METHOD(detectFile:(NSURL *)filePath
                 resolvePromise:(RCTPromiseResolveBlock)resolve
                 rejecter: (RCTPromiseRejectBlock)reject )
@@ -248,6 +373,17 @@ RCT_EXPORT_METHOD(detectFile:(NSURL *)filePath
   resolve(info);
 }
 
+- (NSString *)convertMatToBase64:(cv::Mat) mat{
+  UIImage *newImage = [self convertCVMatToUIImage:mat];
+  NSString *base64 = [self encodeToBase64String:newImage quality:100] ;
+
+  NSString *cleaned = [base64 stringByReplacingOccurrencesOfString: @"\\s+"
+                                                             withString: @""
+                                                                options: NSRegularExpressionSearch
+                                                                  range: NSMakeRange(0, [base64 length])];
+ return cleaned;
+}
+
 - (double) _distance:(cv::Point) p1 p2:(cv::Point) p2{
     return sqrt(((p2.x - p1.x)*(p2.x - p1.x)) + ((p2.y - p1.y)*(p2.y - p1.y)));
 }
@@ -297,11 +433,12 @@ RCT_EXPORT_METHOD(detectFile:(NSURL *)filePath
     std::vector<cv::Point> corners = ip_op_corners_orig;
     corners.resize(4);
     double ratio = photo.size.height / shrunkImageHeight;
+    double borderSize = 10 * ratio;
 
-    corners[0] = cv::Point(ip_op_corners_orig[0].x * ratio, ip_op_corners_orig[0].y * ratio);
-    corners[1] = cv::Point(ip_op_corners_orig[1].x * ratio, ip_op_corners_orig[1].y * ratio);
-    corners[2] = cv::Point(ip_op_corners_orig[2].x * ratio, ip_op_corners_orig[2].y * ratio);
-    corners[3] = cv::Point(ip_op_corners_orig[3].x * ratio, ip_op_corners_orig[3].y * ratio);
+    corners[0] = cv::Point(ip_op_corners_orig[0].x * ratio - borderSize, ip_op_corners_orig[0].y * ratio - borderSize); //topLeft
+    corners[1] = cv::Point(ip_op_corners_orig[1].x * ratio , ip_op_corners_orig[1].y * ratio - borderSize); //topRight
+    corners[2] = cv::Point(ip_op_corners_orig[2].x * ratio, ip_op_corners_orig[2].y * ratio); //bottomRight
+    corners[3] = cv::Point(ip_op_corners_orig[3].x * ratio - borderSize, ip_op_corners_orig[3].y * ratio); //bottomLeft
 
     return corners;
 }
