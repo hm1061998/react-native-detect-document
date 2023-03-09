@@ -1,7 +1,9 @@
 package com.detectdocument.utils
 
+import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
 import android.content.ContentResolver
+import android.content.Context
 import android.media.ExifInterface
 import android.graphics.Matrix
 import android.graphics.Bitmap
@@ -24,6 +26,9 @@ import java.text.SimpleDateFormat
 import android.os.Environment
 import java.util.Date
 import java.util.Locale
+
+import androidx.activity.ComponentActivity
+import android.app.Activity;
 /**
  * This class contains helper functions for processing images
  *
@@ -188,7 +193,7 @@ class ImageUtil {
     )
   }
 
-  fun createImageFile(): File {
+  fun createImageFile(context: Activity?): File {
     // use current time to make file name more unique
     val dateTime: String = SimpleDateFormat(
         "yyyyMMdd_HHmmss",
@@ -196,9 +201,16 @@ class ImageUtil {
     ).format(Date())
 
     val fileNameToSave =  "LAYWERPRO_${dateTime}.jpg"
-
-    // create file in pictures directory
-    var file: File = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString(), fileNameToSave)
+    var dir : String
+    if(context == null){
+      dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString()
+    }
+    else{
+      // create file in pictures directory
+     dir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString()
+    }
+   
+   val file : File = File(dir, fileNameToSave)
     file.createNewFile()
 
     return file

@@ -3,10 +3,11 @@ package com.rndetectdocument
 import android.graphics.Bitmap
 import android.graphics.PointF
 
-import com.facebook.react.bridge.WritableArray;
-import com.facebook.react.bridge.WritableNativeArray;
-import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.bridge.WritableNativeMap;
+import android.app.Activity
+import com.facebook.react.bridge.WritableArray
+import com.facebook.react.bridge.WritableNativeArray
+import com.facebook.react.bridge.WritableMap
+import com.facebook.react.bridge.WritableNativeMap
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
@@ -25,7 +26,7 @@ import com.detectdocument.extensions.toBase64
 import com.detectdocument.extensions.saveToFile
 import com.detectdocument.enums.QuadCorner
 import android.net.Uri
-import java.io.File;
+import java.io.File
 
 class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
@@ -49,26 +50,19 @@ class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
     }
     val result = DocumentDetector().findDocument(originalPhotoPath.replace("file://", ""))
 
-
-
     promise.resolve(result)
   }
 
   @ReactMethod
   fun rotateImage(originalPhotoPath: String, isClockwise: Boolean?, promise: Promise) {
-    val photo: Bitmap = ImageUtil().rotate(originalPhotoPath.replace("file://", ""), isClockwise ?: true)
-
+    val context: Activity? = getCurrentActivity()
     val result: WritableMap = WritableNativeMap()
-
+    val photo: Bitmap = ImageUtil().rotate(originalPhotoPath.replace("file://", ""), isClockwise ?: true)
     // val base64 = photo.toBase64(100)
-
-    val imageFile = ImageUtil().createImageFile()
-    photo.saveToFile(imageFile, 100)
-              
+    val imageFile = ImageUtil().createImageFile(context)
+    photo.saveToFile(imageFile, 100) 
     // val base64 = photo.toBase64(quality ?: 100)
-
     result.putString("image", Uri.fromFile(imageFile).toString())
-
     // result.putString("image", base64)
     result.putInt("width", photo.width.toInt())
     result.putInt("height", photo.height.toInt())
@@ -78,14 +72,12 @@ class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
 
   @ReactMethod
   fun cropImage(originalPhotoPath: String, points: ReadableMap, quality: Int?, rotateDeg: Int?, promise: Promise) {
-    val photo: Bitmap = ImageUtil().crop(originalPhotoPath.replace("file://", ""), points, rotateDeg ?: 0)
-
     val result: WritableMap = WritableNativeMap()
-    val imageFile = ImageUtil().createImageFile()
+    val context: Activity? = getCurrentActivity()
+    val photo: Bitmap = ImageUtil().crop(originalPhotoPath.replace("file://", ""), points, rotateDeg ?: 0)
+    val imageFile = ImageUtil().createImageFile(context)
     photo.saveToFile(imageFile, quality ?: 100)
-              
     // val base64 = photo.toBase64(quality ?: 100)
-
     result.putString("image", Uri.fromFile(imageFile).toString())
     // result.putString("image", base64)
 
