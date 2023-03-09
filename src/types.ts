@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import type { ColorValue } from 'react-native';
+import type { SharedValue } from 'react-native-reanimated';
 
 export declare type NumberProp = string | number;
 
@@ -70,4 +71,16 @@ export interface getImageResults {
   blur: string;
   candy: string;
   newImage: string;
+}
+
+export interface ShareValueXYProps {
+  x: SharedValue<number>;
+  y: SharedValue<number>;
+}
+
+export interface OptionsView {
+  viewWidth: number;
+  viewHeight: number;
+  width: number;
+  height: number;
 }

@@ -8,9 +8,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import com.detectdocument.extensions.distance
-import com.detectdocument.extensions.toBase64
-import com.detectdocument.extensions.toOpenCVPoint
-import com.detectdocument.models.Quad
 import kotlin.math.min
 import org.opencv.android.Utils
 import org.opencv.core.Mat
@@ -21,6 +18,12 @@ import org.opencv.core.Core
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
 
+
+import java.io.File;
+import java.text.SimpleDateFormat
+import android.os.Environment
+import java.util.Date
+import java.util.Locale
 /**
  * This class contains helper functions for processing images
  *
@@ -70,7 +73,7 @@ class ImageUtil {
    * @return bitmap with cropped and warped document
    */
  
-  fun crop(photoFilePath: String, corners: ReadableMap): Bitmap {
+  fun crop(photoFilePath: String, corners: ReadableMap, rotateDeg: Int?): Bitmap {
     // read image with OpenCV
     val bitmap: Bitmap = getImageFromFilePath(photoFilePath.replace("file://", ""))
     val image = Mat()
@@ -125,6 +128,16 @@ class ImageUtil {
       Size(width, height)
     )
 
+    if(rotateDeg == 90){
+      Core.rotate(output, output, Core.ROTATE_90_CLOCKWISE);
+    }
+    else if(rotateDeg == 180){
+      Core.rotate(output, output, Core.ROTATE_180);
+    }
+    else if(rotateDeg == 270){
+      Core.rotate(output, output, Core.ROTATE_90_COUNTERCLOCKWISE);
+    }
+
     // convert output image matrix to bitmap
     val croppedBitmap = Bitmap.createBitmap(
       output.cols(),
@@ -174,4 +187,22 @@ class ImageUtil {
       contentResolver.openInputStream(Uri.parse(fileUriString))
     )
   }
+
+  fun createImageFile(): File {
+    // use current time to make file name more unique
+    val dateTime: String = SimpleDateFormat(
+        "yyyyMMdd_HHmmss",
+        Locale.US
+    ).format(Date())
+
+    val fileNameToSave =  "LAYWERPRO_${dateTime}.jpg"
+
+    // create file in pictures directory
+    var file: File = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString(), fileNameToSave)
+    file.createNewFile()
+
+    return file
+    }
+
+    
 }

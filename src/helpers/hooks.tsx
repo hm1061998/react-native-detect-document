@@ -1,41 +1,15 @@
 /* eslint-disable prettier/prettier */
 import {
   useAnimatedGestureHandler,
-  SharedValue,
   useSharedValue,
   useAnimatedStyle,
   runOnJS,
 } from 'react-native-reanimated';
-import type { PointProps } from '../types';
-
-interface AnimatedStyle {
-  x: SharedValue<number>;
-  y: SharedValue<number>;
-}
-
-interface OptionsView {
-  viewWidth: number;
-  viewHeight: number;
-  width: number;
-  height: number;
-}
-
-//calc position of point in view container
-const imageCoordinatesToViewCoordinates = (
-  corner: PointProps,
-  options: OptionsView
-) => {
-  const { viewWidth, viewHeight, width, height } = options;
-  const x = corner.x * (viewWidth / width);
-  const y = corner.y * (viewHeight / height);
-  return {
-    x,
-    y,
-  };
-};
+import type { PointProps, ShareValueXYProps, OptionsView } from '../types';
+import { imageCoordinatesToViewCoordinates } from './utils';
 
 export const useCustomAnimatedGestureHandler = (
-  animated: AnimatedStyle,
+  animated: ShareValueXYProps,
   options: { viewWidth: number; viewHeight: number },
   callback?: (key: string) => void
 ) => {
@@ -103,7 +77,7 @@ export const useSharedValueXY = (
   };
 };
 
-export const useTranslateAnimatedStyle = (animated: AnimatedStyle) => {
+export const useTranslateAnimatedStyle = (animated: ShareValueXYProps) => {
   return useAnimatedStyle(() => {
     return {
       transform: [

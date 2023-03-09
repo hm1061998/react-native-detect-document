@@ -33,9 +33,10 @@ export const detectFile = (
 export const cropImage = (
   path: string,
   points: Object,
-  quality?: number
+  quality?: number,
+  rotateDeg?: number
 ): Promise<CropperResults | never> => {
-  return RnDDM.cropImage(path, points, quality || 100);
+  return RnDDM.cropImage(path, points, quality || 100, rotateDeg || 0);
 };
 
 export const rotateImage = (

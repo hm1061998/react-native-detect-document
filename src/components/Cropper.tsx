@@ -15,7 +15,12 @@ import {
   useTranslateAnimatedStyle,
   useSharedValueXY,
 } from '../helpers/hooks';
-import type { CropperProps, PolygonProps, CropperHandle } from '../types';
+import type {
+  CropperProps,
+  PolygonProps,
+  CropperHandle,
+  ShareValueXYProps,
+} from '../types';
 
 const AnimatedPolygon = Animated.createAnimatedComponent(
   Polygon
@@ -80,6 +85,8 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
     }: CropperProps,
     ref
   ) => {
+    // const viewHeight = getViewHeight(width, height, layout);
+    // const viewWidth = getViewWidth(width, height, viewHeight);
     const viewHeight = getViewHeight(width, height, layout);
     const viewWidth = getViewWidth(width, height, viewHeight);
     const isCrop = React.useRef(true);
@@ -115,10 +122,7 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
     );
     //end calc
 
-    const viewCoordinatesToImageCoordinates = (corner: {
-      x: { value: number };
-      y: { value: number };
-    }) => {
+    const viewCoordinatesToImageCoordinates = (corner: ShareValueXYProps) => {
       return {
         x: (corner.x.value / viewWidth) * width,
         y: (corner.y.value / viewHeight) * height,

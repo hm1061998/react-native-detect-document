@@ -3,6 +3,7 @@ package com.detectdocument.extensions
 import android.graphics.Bitmap
 import android.util.Base64
 import java.io.ByteArrayOutputStream
+import android.os.Environment
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.sqrt

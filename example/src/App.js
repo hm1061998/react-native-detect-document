@@ -74,17 +74,17 @@ export default function App() {
 
   const crop = async () => {
     // console.log('loading');
-    const res = await customCrop.current.crop();
+    const res = await customCrop.current.crop(70);
     // const { image, width, height } = await nativeMethods.rotateImage(
     //   responseImg.realPath,
     //   false
     // );
-    // console.log('end', width, height);
+    console.log('end', res);
     // setResultCrop(image);
   };
 
   const updateImage = (res) => {
-    // console.log('res',res);
+    console.log('res', res);
     setResultCrop(res);
   };
 
@@ -94,7 +94,8 @@ export default function App() {
         <Image
           style={{ flex: 1, resizeMode: 'contain' }}
           resizeMode="contain"
-          source={{ uri: `data:image/png;base64,${resultCrop}` }}
+          // source={{ uri: `data:image/png;base64,${resultCrop}` }}
+          source={{ uri: resultCrop }}
         />
         <TouchableOpacity
           style={{ height: 50, zIndex: 10 }}

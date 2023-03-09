@@ -22,8 +22,10 @@ import com.detectdocument.DocumentDetector
 import com.detectdocument.extensions.move
 import com.detectdocument.extensions.calcPoint
 import com.detectdocument.extensions.toBase64
+import com.detectdocument.extensions.saveToFile
 import com.detectdocument.enums.QuadCorner
-
+import android.net.Uri
+import java.io.File;
 
 class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
@@ -58,9 +60,16 @@ class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
 
     val result: WritableMap = WritableNativeMap()
 
-    val base64 = photo.toBase64(100)
+    // val base64 = photo.toBase64(100)
 
-    result.putString("image", base64)
+    val imageFile = ImageUtil().createImageFile()
+    photo.saveToFile(imageFile, 100)
+              
+    // val base64 = photo.toBase64(quality ?: 100)
+
+    result.putString("image", Uri.fromFile(imageFile).toString())
+
+    // result.putString("image", base64)
     result.putInt("width", photo.width.toInt())
     result.putInt("height", photo.height.toInt())
 
@@ -68,14 +77,17 @@ class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
   }
 
   @ReactMethod
-  fun cropImage(originalPhotoPath: String, points: ReadableMap, quality: Int?, promise: Promise) {
-    val photo: Bitmap = ImageUtil().crop(originalPhotoPath.replace("file://", ""), points)
+  fun cropImage(originalPhotoPath: String, points: ReadableMap, quality: Int?, rotateDeg: Int?, promise: Promise) {
+    val photo: Bitmap = ImageUtil().crop(originalPhotoPath.replace("file://", ""), points, rotateDeg ?: 0)
 
     val result: WritableMap = WritableNativeMap()
+    val imageFile = ImageUtil().createImageFile()
+    photo.saveToFile(imageFile, quality ?: 100)
+              
+    // val base64 = photo.toBase64(quality ?: 100)
 
-    val base64 = photo.toBase64(quality ?: 100)
-
-    result.putString("image", base64)
+    result.putString("image", Uri.fromFile(imageFile).toString())
+    // result.putString("image", base64)
 
     promise.resolve(result)
   }

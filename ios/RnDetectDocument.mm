@@ -26,13 +26,14 @@ RCT_EXPORT_METHOD(rotateImage:(NSURL *)originalPhotoPath
   cv::rotate(orig, output, value);
 
   UIImage *newImage = [self convertCVMatToUIImage:output];
-  NSString *base64 = [self encodeToBase64String:newImage quality:100] ;
+  // NSString *base64 = [self encodeToBase64String:newImage quality:100] ;
 
-  NSString *cleaned = [base64 stringByReplacingOccurrencesOfString: @"\\s+"
-                                                             withString: @""
-                                                                options: NSRegularExpressionSearch
-                                                                  range: NSMakeRange(0, [base64 length])];
+  // NSString *cleaned = [base64 stringByReplacingOccurrencesOfString: @"\\s+"
+  //                                                            withString: @""
+  //                                                               options: NSRegularExpressionSearch
+  //                                                                 range: NSMakeRange(0, [base64 length])];
 
+  NSString * cleaned = [self convertUIImageToFile:newImage quality:100];
   NSDictionary *info = @{
                 @"image":cleaned,
                 @"width":@(newImage.size.width),
@@ -44,6 +45,7 @@ RCT_EXPORT_METHOD(rotateImage:(NSURL *)originalPhotoPath
 RCT_EXPORT_METHOD(cropImage:(NSURL *)originalPhotoPath
                   points:(NSDictionary *)points
                   quality:(int)quality 
+                  rotateDeg:(int)rotateDeg
                   resolvePromise:(RCTPromiseResolveBlock)resolve
                   rejecter: (RCTPromiseRejectBlock)reject )
 {
@@ -89,14 +91,25 @@ RCT_EXPORT_METHOD(cropImage:(NSURL *)originalPhotoPath
     cv::Size(width, height)
   );
 
+    if(rotateDeg == 90){
+      cv::rotate(output, output, cv::ROTATE_90_CLOCKWISE);
+    }
+    else if(rotateDeg == 180){
+      cv::rotate(output, output, cv::ROTATE_180);
+    }
+    else if(rotateDeg == 270){
+      cv::rotate(output, output, cv::ROTATE_90_COUNTERCLOCKWISE);
+    }
 
   UIImage *newImage = [self convertCVMatToUIImage:output];
-  NSString *base64 = [self encodeToBase64String:newImage quality:quality] ;
+  // NSString *base64 = [self encodeToBase64String:newImage quality:quality] ;
 
-  NSString *cleaned = [base64 stringByReplacingOccurrencesOfString: @"\\s+"
-                                                             withString: @""
-                                                                options: NSRegularExpressionSearch
-                                                                  range: NSMakeRange(0, [base64 length])];
+  // NSString *cleaned = [base64 stringByReplacingOccurrencesOfString: @"\\s+"
+  //                                                            withString: @""
+  //                                                               options: NSRegularExpressionSearch
+  //                                                                 range: NSMakeRange(0, [base64 length])];
+
+  NSString * cleaned = [self convertUIImageToFile:newImage quality:quality];
 
   NSDictionary *info = @{
                 @"image":cleaned,
@@ -382,6 +395,19 @@ RCT_EXPORT_METHOD(detectFile:(NSURL *)filePath
                                                                 options: NSRegularExpressionSearch
                                                                   range: NSMakeRange(0, [base64 length])];
  return cleaned;
+}
+
+- (NSString *)convertUIImageToFile:(UIImage *)image quality:(int)quality{
+  NSString *uuid = [NSUUID UUID].UUIDString;
+  NSString *documentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+  NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"LAYWERPRO_"];
+  filePath = [filePath stringByAppendingString:uuid];
+  filePath = [filePath stringByAppendingString:@".jpg"];
+
+  NSData *imageData = UIImageJPEGRepresentation(image, quality?quality/100:1); 
+  [imageData writeToFile:filePath atomically:YES];
+
+  return filePath;
 }
 
 - (double) _distance:(cv::Point) p1 p2:(cv::Point) p2{
