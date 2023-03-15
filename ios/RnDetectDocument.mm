@@ -26,13 +26,7 @@ RCT_EXPORT_METHOD(rotateImage:(NSURL *)originalPhotoPath
   cv::rotate(orig, output, value);
 
   UIImage *newImage = [self convertCVMatToUIImage:output];
-  // NSString *base64 = [self encodeToBase64String:newImage quality:100] ;
-
-  // NSString *cleaned = [base64 stringByReplacingOccurrencesOfString: @"\\s+"
-  //                                                            withString: @""
-  //                                                               options: NSRegularExpressionSearch
-  //                                                                 range: NSMakeRange(0, [base64 length])];
-
+  
   NSString * cleaned = [self convertUIImageToFile:newImage quality:100];
   NSDictionary *info = @{
                 @"image":cleaned,
@@ -53,14 +47,14 @@ RCT_EXPORT_METHOD(cropImage:(NSURL *)originalPhotoPath
   UIImage* image = [self pathToUIImage:originalPhotoPath];
   cv::Mat orig = [self convertUIImageToCVMat:image];
 
-  double topLeftX = [[[points valueForKey:@"topLeft"] valueForKey:@"x"] doubleValue];
-  double topLeftY  = [[[points valueForKey:@"topLeft"] valueForKey:@"y"] doubleValue];
-  double topRightX = [[[points valueForKey:@"topRight"] valueForKey:@"x"] doubleValue];
-  double topRightY  = [[[points valueForKey:@"topRight"] valueForKey:@"y"] doubleValue];
-  double bottomRightX = [[[points valueForKey:@"bottomRight"] valueForKey:@"x"] doubleValue];
-  double bottomRightY = [[[points valueForKey:@"bottomRight"] valueForKey:@"y"] doubleValue];
-  double bottomLeftX  = [[[points valueForKey:@"bottomLeft"] valueForKey:@"x"] doubleValue];
-  double bottomLeftY = [[[points valueForKey:@"bottomLeft"] valueForKey:@"y"] doubleValue];
+  double topLeftX = [points[@"topLeft"][@"x"] doubleValue];
+  double topLeftY  = [points[@"topLeft"][@"y"] doubleValue];
+  double topRightX = [points[@"topRight"][@"x"] doubleValue];
+  double topRightY  = [points[@"topRight"][@"y"] doubleValue];
+  double bottomRightX = [points[@"bottomRight"][@"x"] doubleValue];
+  double bottomRightY = [points[@"bottomRight"][@"y"] doubleValue];
+  double bottomLeftX  = [points[@"bottomLeft"][@"x"] doubleValue];
+  double bottomLeftY = [points[@"bottomLeft"][@"y"] doubleValue];
 
   cv::Point tLC = cv::Point(topLeftX, topLeftY);
   cv::Point tRC = cv::Point(topRightX, topRightY);
@@ -102,12 +96,6 @@ RCT_EXPORT_METHOD(cropImage:(NSURL *)originalPhotoPath
     }
 
   UIImage *newImage = [self convertCVMatToUIImage:output];
-  // NSString *base64 = [self encodeToBase64String:newImage quality:quality] ;
-
-  // NSString *cleaned = [base64 stringByReplacingOccurrencesOfString: @"\\s+"
-  //                                                            withString: @""
-  //                                                               options: NSRegularExpressionSearch
-  //                                                                 range: NSMakeRange(0, [base64 length])];
 
   NSString * cleaned = [self convertUIImageToFile:newImage quality:quality];
 
@@ -399,7 +387,7 @@ RCT_EXPORT_METHOD(detectFile:(NSURL *)filePath
 
 - (NSString *)convertUIImageToFile:(UIImage *)image quality:(int)quality{
   NSString *uuid = [NSUUID UUID].UUIDString;
-  NSString *documentsDirectory = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject];
+  NSString *documentsDirectory = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject];
   NSString *filePath = [documentsDirectory stringByAppendingPathComponent:@"LAYWERPRO_"];
   filePath = [filePath stringByAppendingString:uuid];
   filePath = [filePath stringByAppendingString:@".jpg"];

@@ -207,10 +207,11 @@ class ImageUtil {
     }
     else{
       // create file in pictures directory
-     dir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString()
+    //  dir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString()
+     dir = context.getCacheDir().toString()
     }
    
-   val file : File = File(dir, fileNameToSave)
+    val file : File = File(dir, fileNameToSave)
     file.createNewFile()
 
     return file
