@@ -85,22 +85,32 @@ RCT_EXPORT_METHOD(cropImage:(NSURL *)originalPhotoPath
     cv::Size(width, height)
   );
 
-    if(rotateDeg == 90){
-      cv::rotate(output, output, cv::ROTATE_90_CLOCKWISE);
-    }
-    else if(rotateDeg == 180){
-      cv::rotate(output, output, cv::ROTATE_180);
-    }
-    else if(rotateDeg == 270){
-      cv::rotate(output, output, cv::ROTATE_90_COUNTERCLOCKWISE);
-    }
+  if(rotateDeg == 90){
+    cv::rotate(output, output, cv::ROTATE_90_CLOCKWISE);
+  }
+  else if(rotateDeg == 180){
+    cv::rotate(output, output, cv::ROTATE_180);
+  }
+  else if(rotateDeg == 270){
+    cv::rotate(output, output, cv::ROTATE_90_COUNTERCLOCKWISE);
+  }
+
+  cv::Mat gray ;
+  cv::Mat binary ;
+
+  cv::cvtColor(output, gray, cv::COLOR_BGR2GRAY);
+  cv::threshold(gray, binary, 128, 255, cv::THRESH_BINARY);
 
   UIImage *newImage = [self convertCVMatToUIImage:output];
 
   NSString * cleaned = [self convertUIImageToFile:newImage quality:quality];
+  NSString * grayfile = [self convertUIImageToFile:[self convertCVMatToUIImage:gray] quality:quality];
+  NSString * binaryfile = [self convertUIImageToFile:[self convertCVMatToUIImage:binary] quality:quality];
 
   NSDictionary *info = @{
                 @"image":cleaned,
+                @"grayfile":grayfile,
+                @"binaryfile":binaryfile,
               };
   resolve(info);
 }
@@ -142,7 +152,7 @@ RCT_EXPORT_METHOD(getResultImage:(NSURL *)filePath
   cv::dilate(
     candy,
     candy,
-    cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3))
+    cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3))
   );
 
   std::vector<cv::Vec2f> lines;
@@ -163,7 +173,7 @@ RCT_EXPORT_METHOD(getResultImage:(NSURL *)filePath
   cv::dilate(
     newLine,
     newLine,
-    cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3))
+    cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(3, 3))
   );
 
   std::vector<std::vector<cv::Point> > approxContours = [self findContours:newLine check: false] ;

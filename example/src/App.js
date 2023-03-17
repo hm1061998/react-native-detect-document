@@ -79,13 +79,13 @@ export default function App() {
     //   responseImg.realPath,
     //   false
     // );
-    console.log('end', res);
-    // setResultCrop(image);
+    // console.log('end', res);
+    setResultCrop(res.image);
   };
 
   const updateImage = (res) => {
-    console.log('res', res);
-    setResultCrop(res);
+    // console.log('res', res);
+    // setResultCrop(res);
   };
 
   if (resultCrop) {
@@ -110,7 +110,7 @@ export default function App() {
     );
   }
 
-  //   console.log({loading});
+  // console.log({ responseImg });
 
   if (responseImg) {
     return (

@@ -26,7 +26,7 @@ import java.text.SimpleDateFormat
 import android.os.Environment
 import java.util.Date
 import java.util.Locale
-
+import java.util.UUID
 import androidx.activity.ComponentActivity
 import android.app.Activity;
 /**
@@ -195,12 +195,12 @@ class ImageUtil {
 
   fun createImageFile(context: Activity?): File {
     // use current time to make file name more unique
-    val dateTime: String = SimpleDateFormat(
-        "yyyyMMdd_HHmmss",
-        Locale.US
-    ).format(Date())
+    // val dateTime: String = SimpleDateFormat(
+    //     "yyyyMMdd_HHmmss",
+    //     Locale.US
+    // ).format(Date())
 
-    val fileNameToSave =  "LAYWERPRO_${dateTime}.jpg"
+    val fileNameToSave =  "LAYWERPRO_${UUID.randomUUID().toString()}.jpg"
     var dir : String
     if(context == null){
       dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString()

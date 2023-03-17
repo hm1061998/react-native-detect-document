@@ -142,7 +142,7 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
 
         const res = await cropImage(initialImage, coordinates, quality);
         updateImage?.(res.image, coordinates);
-        return { image: res.image, coordinates };
+        return { ...res, coordinates };
       },
       toogleCropMode: () => {
         const newTopLeft = { x: topLeft.x.value, y: topLeft.y.value };
