@@ -82,11 +82,10 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
       updateImage,
       handlerColor,
       onHander,
+      enablePanStrict,
     }: CropperProps,
     ref
   ) => {
-    // const viewHeight = getViewHeight(width, height, layout);
-    // const viewWidth = getViewWidth(width, height, viewHeight);
     const viewHeight = getViewHeight(width, height, layout);
     const viewWidth = getViewWidth(width, height, viewHeight);
     const isCrop = React.useRef(true);
@@ -267,7 +266,10 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
             />
           </Svg>
 
-          <PanGestureHandler onGestureEvent={panResponderTopLeft}>
+          <PanGestureHandler
+            enabled={enablePanStrict}
+            onGestureEvent={panResponderTopLeft}
+          >
             <Animated.View style={[s.handler, topLeftStyle]}>
               <View
                 style={[s.handlerI, { left: -10, top: -10 }, handleColorStyle]}
@@ -282,7 +284,10 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
             </Animated.View>
           </PanGestureHandler>
 
-          <PanGestureHandler onGestureEvent={panResponderTopRight}>
+          <PanGestureHandler
+            enabled={enablePanStrict}
+            onGestureEvent={panResponderTopRight}
+          >
             <Animated.View style={[s.handler, topRightStyle]}>
               <View
                 style={[s.handlerI, { left: 10, top: -10 }, handleColorStyle]}
@@ -297,7 +302,10 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
             </Animated.View>
           </PanGestureHandler>
 
-          <PanGestureHandler onGestureEvent={panResponderBottomLeft}>
+          <PanGestureHandler
+            enabled={enablePanStrict}
+            onGestureEvent={panResponderBottomLeft}
+          >
             <Animated.View style={[s.handler, bottomLeftStyle]}>
               <View
                 style={[s.handlerI, { left: -10, top: 10 }, handleColorStyle]}
@@ -312,7 +320,10 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
             </Animated.View>
           </PanGestureHandler>
 
-          <PanGestureHandler onGestureEvent={panResponderBottomRight}>
+          <PanGestureHandler
+            enabled={enablePanStrict}
+            onGestureEvent={panResponderBottomRight}
+          >
             <Animated.View style={[s.handler, bottomRightStyle]}>
               <View
                 style={[s.handlerI, { left: 10, top: 10 }, handleColorStyle]}

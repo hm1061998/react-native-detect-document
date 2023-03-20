@@ -52,6 +52,7 @@ export interface CropperViewProps {
   handlerColor: string;
   updateImage?: (image: string, points: DataImageResult) => void;
   onHander: (key: string, corners: RectangleProps) => void;
+  enablePanStrict: boolean | undefined;
 }
 
 export interface CropperProps extends CropperViewProps {

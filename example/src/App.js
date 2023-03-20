@@ -136,7 +136,7 @@ export default function App() {
                   overlayColor="rgba(18,190,210, 1)"
                   overlayStrokeColor="rgba(20,190,210, 1)"
                   handlerColor="rgba(20,150,160, 1)"
-                  enablePanStrict={false}
+                  enablePanStrict={true}
                   onHander={(key) => {
                     setscrollEnabled(key !== 'start');
                     // console.log('key', key);
