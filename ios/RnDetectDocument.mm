@@ -409,9 +409,12 @@ RCT_EXPORT_METHOD(detectFile:(NSURL *)filePath
       std::vector<cv::Point> largestArea;
       for (auto const& mat : imageSplitByColorChannel) {
           std::vector<cv::Point> corners = [self findCorners:mat];
-          if (largestArea.empty()|| cv::contourArea(corners) > cv::contourArea(largestArea)) {
+          if(!corners.empty()){
+              if (largestArea.empty()|| cv::contourArea(corners) > cv::contourArea(largestArea)) {
                   largestArea = corners;
               }
+          }
+         
       }
 
   // std::vector<cv::Point> largestArea = [self findCorners:outputImage];
@@ -648,6 +651,7 @@ RCT_EXPORT_METHOD(detectFile:(NSURL *)filePath
           }
         }
       return results;
+      
 }
 
 
