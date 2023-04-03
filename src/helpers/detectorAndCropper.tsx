@@ -51,3 +51,18 @@ export const getResultImage = (
 ): Promise<getImageResults | never> => {
   return RnDDM.getResultImage(path);
 };
+
+export const cleanText = (path: string): Promise<getImageResults | never> => {
+  return RnDDM.cleanText(path);
+};
+
+export const resizeImage = (
+  path: string,
+  options: { width: number; height: number; quality: number }
+): Promise<{ uri: string } | never> => {
+  const newOptions = {
+    ...options,
+    quality: options.quality || 100,
+  };
+  return RnDDM.resizeImage(path, newOptions);
+};

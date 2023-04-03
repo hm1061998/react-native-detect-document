@@ -77,6 +77,7 @@ PODS:
     - hermes-engine/Pre-built (= 0.71.2)
   - hermes-engine/Pre-built (0.71.2)
   - libevent (2.1.12)
+  - NextLevelSessionExporter (0.4.6)
   - OpenCV (4.1.0)
   - OpenSSL-Universal (1.1.1100)
   - RCT-Folly (2021.07.22.00):
@@ -330,7 +331,10 @@ PODS:
   - React-jsinspector (0.71.2)
   - React-logger (0.71.2):
     - glog
-  - react-native-detect-document (0.1.12):
+  - react-native-compressor (1.6.1):
+    - NextLevelSessionExporter
+    - React-Core
+  - react-native-detect-document (0.1.22):
     - OpenCV (~> 4.1.0)
     - React-Core
   - react-native-image-base64 (0.1.4):
@@ -505,6 +509,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - react-native-compressor (from `../node_modules/react-native-compressor`)
   - react-native-detect-document (from `../..`)
   - react-native-image-base64 (from `../node_modules/react-native-image-base64`)
   - "react-native-multiple-image-picker (from `../node_modules/@baronha/react-native-multiple-image-picker`)"
@@ -540,6 +545,7 @@ SPEC REPOS:
     - FlipperKit
     - fmt
     - libevent
+    - NextLevelSessionExporter
     - OpenCV
     - OpenSSL-Universal
     - SocketRocket
@@ -587,6 +593,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-compressor:
+    :path: "../node_modules/react-native-compressor"
   react-native-detect-document:
     :path: "../.."
   react-native-image-base64:
@@ -647,6 +655,7 @@ SPEC CHECKSUMS:
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
   hermes-engine: 6351580c827b3b03e5f25aadcf989f582d0b0a86
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
+  NextLevelSessionExporter: 4d8aa5e617f1c709724f2453efe5d4628480f65a
   OpenCV: 52cd4d72ff29e2be83421477aec5447320b7fb19
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
@@ -663,7 +672,8 @@ SPEC CHECKSUMS:
   React-jsiexecutor: c7e028406112db456ac3cf5720d266bc7bc20938
   React-jsinspector: ea8101acf525ec08b2d87ddf0637d45f8e3b4148
   React-logger: 97987f46779d8dd24656474ad0c43a5b459f31d6
-  react-native-detect-document: 6a27a7fab58124a04ed16b82196c58e2e847249e
+  react-native-compressor: ebcf8bc36f8e44581a8f831583caee8a27e55a01
+  react-native-detect-document: aacf56b5c7da36eaaa645d3f647987bf1ba666d3
   react-native-image-base64: 2ff9ac788639c87a91361ab6652cc95e871b1e54
   react-native-multiple-image-picker: ba2725d577e1da7fa83ce1b12a81d84107556240
   React-perflogger: c7ccda3d1d1da837f7ff4e54e816022a6803ee87

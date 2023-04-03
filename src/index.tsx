@@ -11,6 +11,8 @@ import {
   cropImage,
   getResultImage,
   rotateImage,
+  cleanText,
+  resizeImage,
 } from './helpers/detectorAndCropper';
 
 const RnDetectDocument = {
@@ -19,9 +21,19 @@ const RnDetectDocument = {
   cropImage,
   getResultImage,
   rotateImage,
+  cleanText,
+  resizeImage,
 };
 
-export { CropperView, detectFile, cropImage, getResultImage, rotateImage };
+export {
+  CropperView,
+  detectFile,
+  cropImage,
+  getResultImage,
+  rotateImage,
+  cleanText,
+  resizeImage,
+};
 export type {
   DocumentCorrersResults,
   CropperResults,

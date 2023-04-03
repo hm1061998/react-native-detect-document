@@ -19,7 +19,7 @@ import org.opencv.core.Size
 import org.opencv.core.Core
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
-
+import org.opencv.core.CvType
 
 import java.io.File;
 import android.os.Environment
@@ -172,6 +172,83 @@ class ImageUtil {
 
     return croppedBitmap
   }
+
+  fun cleanText(photoFilePath: String): Bitmap {
+    // read image with OpenCV
+    // val image = Imgcodecs.imread(photoFilePath.replace("file://", ""))
+    val bitmap: Bitmap = getImageFromFilePath(photoFilePath.replace("file://", ""))
+    val image = Mat()
+  
+
+    Utils.bitmapToMat(bitmap, image)
+
+    val output = Mat()
+    //  Imgproc.cvtColor(image, output, Imgproc.COLOR_BGR2GRAY)
+    // Imgproc.GaussianBlur(image, output, Size(0.0, 0.0), 10.0)
+    // Core.addWeighted(output, 1.5, output, -0.5, 0.0, output)
+
+    val kernelSize = 3
+    val kernel = Mat.zeros(kernelSize, kernelSize, CvType.CV_32F)
+      kernel.put(-1, -1, -1.0)
+      kernel.put(-1, -9, -1.0)
+      kernel.put(-1, -1, -1.0)
+      // Apply the filter
+      // val dst = Mat()
+      Imgproc.filter2D(image, output, -1, kernel, Point(-1.0,-1.0), 0.0, 4)
+    // Imgproc.threshold(
+    //           output,
+    //           output,
+    //           0.0,
+    //           255.0,
+    //           Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU
+    //       )
+
+  
+      // convert output image matrix to bitmap
+      val croppedBitmap = Bitmap.createBitmap(
+        output.cols(),
+        output.rows(),
+        Bitmap.Config.ARGB_8888
+      )
+      Utils.matToBitmap(output, croppedBitmap)
+
+      return croppedBitmap
+  }
+
+  fun resize(photoFilePath: String, resizeOptions: ReadableMap): Bitmap {
+    // read image with OpenCV
+    // val image = Imgcodecs.imread(photoFilePath.replace("file://", ""))
+    val photo: Bitmap = getImageFromFilePath(photoFilePath.replace("file://", ""))
+    val image = Mat()
+  
+    Utils.bitmapToMat(photo, image)
+
+    val output = Mat()
+
+    val width = if(resizeOptions.hasKey("width")) resizeOptions.getDouble("width") else null
+    val height = if(resizeOptions.hasKey("height")) resizeOptions.getDouble("height") else null
+    val currentImageRatio = photo.width.toFloat() / photo.height.toFloat()
+    val newWidth = width ?: (height!! * currentImageRatio).toDouble()
+    val newHeight = height ?: (width!! / currentImageRatio).toDouble()
+
+    Imgproc.resize(
+          image,
+          output,
+          Size(newWidth, newHeight)
+      )
+      // convert output image matrix to bitmap
+      val croppedBitmap = Bitmap.createBitmap(
+        output.cols(),
+        output.rows(),
+        Bitmap.Config.ARGB_8888
+      )
+      Utils.matToBitmap(output, croppedBitmap)
+
+      return croppedBitmap
+  }
+
+
+
 
 
   /**

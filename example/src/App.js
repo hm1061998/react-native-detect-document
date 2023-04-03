@@ -16,8 +16,10 @@ import {
 import RNDDM from 'react-native-detect-document';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-// import CropperView from "./CropperView";
-const { detectFile, CropperView, getResultImage } = RNDDM;
+import { Image as CompresImage, uuidv4 } from 'react-native-compressor';
+import FilterImage from 'react-native-image-filter-android';
+
+const { detectFile, CropperView, getResultImage, cleanText } = RNDDM;
 
 const nativeMethods = NativeModules.RnDetectDocument;
 const { width } = Dimensions.get('window');
@@ -55,6 +57,7 @@ export default function App() {
       // const res = await getResultImage(filePath);
       // setLoading(false);
       // setresultImage(res);
+
       const { corners, width, height } = await detectFile(filePath);
       setLoading(false);
       const rectangle = {
@@ -63,7 +66,7 @@ export default function App() {
         bottomRight: corners.BOTTOM_RIGHT,
         bottomLeft: corners.BOTTOM_LEFT,
       };
-      //
+
       setResponseImg({ realPath: filePath, width, height, rectangle });
 
       // console.log({ response });
@@ -74,13 +77,24 @@ export default function App() {
 
   const crop = async () => {
     // console.log('loading');
-    const res = await customCrop.current.crop(70);
+    // const res = await customCrop.current.crop(100);
+    const res = await RNDDM.resizeImage(responseImg.realPath, { width: 595 });
+    // let res = await FilterImage.SharpenImage(responseImg.realPath, 1.5);
+    // const uri = await CompresImage.compress(responseImg.realPath, {
+    //   compressionMethod: 'auto',
+    //   quality: 1,
+    //   maxWidth: 595,
+    // });
+    // const res = await FilterImage.SharpenImage(uri, 1.5);
     // const { image, width, height } = await nativeMethods.rotateImage(
     //   responseImg.realPath,
     //   false
     // );
     // console.log('end', res);
-    setResultCrop(res.image);
+    Image.getSize(res.uri, (w, h) => {
+      // console.log({ w, h });
+    });
+    setResultCrop(res.uri);
   };
 
   const updateImage = (res) => {
