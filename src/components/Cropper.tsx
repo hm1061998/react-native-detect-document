@@ -235,13 +235,13 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
         points: animatedPointsValues.map((item) => {
           return [item.x.value, item.y.value];
         }),
+        // fillRule: 'evenodd',
+        clipPath: 'url(#clip)',
       }),
       []
     );
 
-    const handleColorStyle = handlerColor
-      ? { backgroundColor: handlerColor }
-      : {};
+    const handleColorStyle = handlerColor ? { borderColor: handlerColor } : {};
 
     return (
       <GestureHandlerRootView>
@@ -256,12 +256,13 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
             width={viewWidth}
             viewBox={`0 0 ${viewWidth} ${viewHeight}`}
             style={{ position: 'absolute', left: 0, top: 0 }}
+            preserveAspectRatio="none"
           >
             <AnimatedPolygon
               fill={overlayColor || 'blue'}
               fillOpacity={overlayOpacity || 0.5}
               stroke={overlayStrokeColor || 'blue'}
-              strokeWidth={overlayStrokeWidth || 3}
+              strokeWidth={overlayStrokeWidth || 1}
               animatedProps={animatedProps}
             />
           </Svg>
@@ -271,16 +272,14 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
             onGestureEvent={panResponderTopLeft}
           >
             <Animated.View style={[s.handler, topLeftStyle]}>
-              <View
-                style={[s.handlerI, { left: -10, top: -10 }, handleColorStyle]}
-              />
-              <View
+              <View style={[s.handlerI, handleColorStyle]} />
+              {/* <View
                 style={[
                   s.handlerRound,
                   { left: 31, top: 31 },
                   handleColorStyle,
                 ]}
-              />
+              /> */}
             </Animated.View>
           </PanGestureHandler>
 
@@ -289,16 +288,14 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
             onGestureEvent={panResponderTopRight}
           >
             <Animated.View style={[s.handler, topRightStyle]}>
-              <View
-                style={[s.handlerI, { left: 10, top: -10 }, handleColorStyle]}
-              />
-              <View
+              <View style={[s.handlerI, handleColorStyle]} />
+              {/* <View
                 style={[
                   s.handlerRound,
                   { right: 31, top: 31 },
                   handleColorStyle,
                 ]}
-              />
+              /> */}
             </Animated.View>
           </PanGestureHandler>
 
@@ -307,16 +304,14 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
             onGestureEvent={panResponderBottomLeft}
           >
             <Animated.View style={[s.handler, bottomLeftStyle]}>
-              <View
-                style={[s.handlerI, { left: -10, top: 10 }, handleColorStyle]}
-              />
-              <View
+              <View style={[s.handlerI, handleColorStyle]} />
+              {/* <View
                 style={[
                   s.handlerRound,
                   { left: 31, bottom: 31 },
                   handleColorStyle,
                 ]}
-              />
+              /> */}
             </Animated.View>
           </PanGestureHandler>
 
@@ -325,16 +320,14 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
             onGestureEvent={panResponderBottomRight}
           >
             <Animated.View style={[s.handler, bottomRightStyle]}>
-              <View
-                style={[s.handlerI, { left: 10, top: 10 }, handleColorStyle]}
-              />
-              <View
+              <View style={[s.handlerI, handleColorStyle]} />
+              {/* <View
                 style={[
                   s.handlerRound,
                   { right: 31, bottom: 31 },
                   handleColorStyle,
                 ]}
-              />
+              /> */}
             </Animated.View>
           </PanGestureHandler>
         </View>
@@ -345,10 +338,12 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
 
 const s = StyleSheet.create({
   handlerI: {
-    borderRadius: 0,
+    borderRadius: 999,
     height: 20,
     width: 20,
-    backgroundColor: 'blue',
+    borderColor: 'blue',
+    borderWidth: 2,
+    // opacity: 0.8,
   },
   handlerRound: {
     width: 39,

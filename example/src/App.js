@@ -147,9 +147,9 @@ export default function App() {
                   height={responseImg.height}
                   width={responseImg.width}
                   ref={customCrop}
-                  overlayColor="rgba(18,190,210, 1)"
-                  overlayStrokeColor="rgba(20,190,210, 1)"
-                  handlerColor="rgba(20,150,160, 1)"
+                  overlayColor="#fff"
+                  overlayStrokeColor="#fff"
+                  handlerColor="#fff"
                   enablePanStrict={true}
                   onHander={(key) => {
                     setscrollEnabled(key !== 'start');

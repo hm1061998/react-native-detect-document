@@ -334,7 +334,7 @@ PODS:
   - react-native-compressor (1.6.1):
     - NextLevelSessionExporter
     - React-Core
-  - react-native-detect-document (0.1.22):
+  - react-native-detect-document (0.2.1):
     - OpenCV (~> 4.1.0)
     - React-Core
   - react-native-image-base64 (0.1.4):
@@ -673,7 +673,7 @@ SPEC CHECKSUMS:
   React-jsinspector: ea8101acf525ec08b2d87ddf0637d45f8e3b4148
   React-logger: 97987f46779d8dd24656474ad0c43a5b459f31d6
   react-native-compressor: ebcf8bc36f8e44581a8f831583caee8a27e55a01
-  react-native-detect-document: aacf56b5c7da36eaaa645d3f647987bf1ba666d3
+  react-native-detect-document: 03150f74c7e9dbb2a6afd270fc44fe7873f2a410
   react-native-image-base64: 2ff9ac788639c87a91361ab6652cc95e871b1e54
   react-native-multiple-image-picker: ba2725d577e1da7fa83ce1b12a81d84107556240
   React-perflogger: c7ccda3d1d1da837f7ff4e54e816022a6803ee87
