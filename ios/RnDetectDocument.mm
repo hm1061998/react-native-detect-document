@@ -302,6 +302,7 @@ RCT_EXPORT_METHOD(getResultImage:(NSURL *)filePath
 }
 
 RCT_EXPORT_METHOD(detectFile:(NSURL *)filePath
+                isCard:(BOOL)isCard
                 resolvePromise:(RCTPromiseResolveBlock)resolve
                 rejecter: (RCTPromiseRejectBlock)reject )
 {
@@ -408,7 +409,7 @@ RCT_EXPORT_METHOD(detectFile:(NSURL *)filePath
 
       std::vector<cv::Point> largestArea;
       for (auto const& mat : imageSplitByColorChannel) {
-          std::vector<cv::Point> corners = [self findCorners:mat];
+          std::vector<cv::Point> corners = [self findCorners:mat isCard:isCard];
           if(!corners.empty()){
               if (largestArea.empty()|| cv::contourArea(corners) > cv::contourArea(largestArea)) {
                   largestArea = corners;
@@ -598,7 +599,7 @@ RCT_EXPORT_METHOD(detectFile:(NSURL *)filePath
  return [UIImageJPEGRepresentation(image, quality? quality/100 : 1) base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
 }
 
-- (std::vector<cv::Point>)findCorners:(cv::Mat)mat{
+- (std::vector<cv::Point>)findCorners:(cv::Mat)mat isCard:(BOOL) isCard{
  
   cv::Mat outputImage ;
   
@@ -639,11 +640,16 @@ RCT_EXPORT_METHOD(detectFile:(NSURL *)filePath
 
       std::vector<cv::Point> results;
 
+      float height = outputImage.cols;
+      float width = outputImage.rows;
+      double MAX_COUNTOUR_AREA = width  * height ;
+      double minLimitArea = isCard ? 10000 : MAX_COUNTOUR_AREA / 2;
+
       double maxArea2 = 0;
       for (size_t i = 0; i < approxs.size(); i++){
           if(
             approxs[i].size() == 4
-            && cv::contourArea(approxs[i]) > 10000
+            && cv::contourArea(approxs[i]) > minLimitArea
             && cv::isContourConvex(approxs[i])
             && cv::contourArea(approxs[i]) > maxArea2){
               results = approxs[i];
@@ -742,7 +748,7 @@ RCT_EXPORT_METHOD(detectFile:(NSURL *)filePath
       }
     }
 
-  if (!largestArea.empty()) {
+  if (!largestArea.empty()  && cv::contourArea(largestArea) < (MAX_COUNTOUR_AREA / 4) ) {
     cv::Mat drawing = cv::Mat::zeros( candy.size(), CV_8UC3 );
       cv::Mat output;
       

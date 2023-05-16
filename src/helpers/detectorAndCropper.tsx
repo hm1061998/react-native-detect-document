@@ -25,25 +25,26 @@ const RnDDM = NativeModules.RnDetectDocument
     );
 
 export const detectFile = (
-  path: string
+  path: string,
+  isCard: boolean = false
 ): Promise<DocumentCorrersResults | never> => {
-  return RnDDM.detectFile(path);
+  return RnDDM.detectFile(path, isCard);
 };
 
 export const cropImage = (
   path: string,
   points: Object,
-  quality?: number,
-  rotateDeg?: number
+  quality: number = 100,
+  rotateDeg: number = 0
 ): Promise<CropperResults | never> => {
-  return RnDDM.cropImage(path, points, quality || 100, rotateDeg || 0);
+  return RnDDM.cropImage(path, points, quality, rotateDeg);
 };
 
 export const rotateImage = (
   path: string,
-  isClockwise?: boolean
+  isClockwise: boolean = true
 ): Promise<RotateResults | never> => {
-  return RnDDM.rotateImage(path, isClockwise || true);
+  return RnDDM.rotateImage(path, isClockwise);
 };
 
 export const getResultImage = (

@@ -11,11 +11,10 @@
   "dependencies": {
     "@baronha/react-native-multiple-image-picker": "^0.4.13",
     "react": "18.2.0",
-    "react-native": "0.71.2",
+    "react-native": "0.71.6",
     "react-native-compressor": "^1.6.1",
     "react-native-gesture-handler": "^2.9.0",
     "react-native-image-base64": "^0.1.4",
-    "react-native-image-filter-android": "^1.0.8",
     "react-native-reanimated": "^2.14.4",
     "react-native-svg": "^13.8.0"
   },

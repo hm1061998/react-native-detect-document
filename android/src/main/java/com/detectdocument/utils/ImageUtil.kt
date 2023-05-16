@@ -183,18 +183,27 @@ class ImageUtil {
     Utils.bitmapToMat(bitmap, image)
 
     val output = Mat()
-    //  Imgproc.cvtColor(image, output, Imgproc.COLOR_BGR2GRAY)
-    // Imgproc.GaussianBlur(image, output, Size(0.0, 0.0), 10.0)
-    // Core.addWeighted(output, 1.5, output, -0.5, 0.0, output)
+     Imgproc.cvtColor(image, output, Imgproc.COLOR_BGR2GRAY)
+    //  val laplacian = Mat()
+    
 
-    val kernelSize = 3
-    val kernel = Mat.zeros(kernelSize, kernelSize, CvType.CV_32F)
-      kernel.put(-1, -1, -1.0)
-      kernel.put(-1, -9, -1.0)
-      kernel.put(-1, -1, -1.0)
-      // Apply the filter
-      // val dst = Mat()
-      Imgproc.filter2D(image, output, -1, kernel, Point(-1.0,-1.0), 0.0, 4)
+     val clahe = Imgproc.createCLAHE()
+    clahe.apply(output, output)
+
+    Imgproc.GaussianBlur(output, output, Size(0.0, 0.0), 10.0)
+    Core.addWeighted(output, 1.5, output, -0.5, 0.0, output)
+
+
+    Imgproc.equalizeHist(output, output)
+
+    // val kernelSize = 3
+    // val kernel = Mat.zeros(kernelSize, kernelSize, CvType.CV_32F)
+    //   kernel.put(-1, -1, -1.0)
+    //   kernel.put(-1, -9, -1.0)
+    //   kernel.put(-1, -1, -1.0)
+    //   // Apply the filter
+    //   // val dst = Mat()
+    //   Imgproc.filter2D(image, output, -1, kernel, Point(-1.0,-1.0), 0.0, 4)
     // Imgproc.threshold(
     //           output,
     //           output,

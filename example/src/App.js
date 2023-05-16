@@ -17,7 +17,6 @@ import RNDDM from 'react-native-detect-document';
 import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Image as CompresImage, uuidv4 } from 'react-native-compressor';
-import FilterImage from 'react-native-image-filter-android';
 
 const { detectFile, CropperView, getResultImage, cleanText } = RNDDM;
 
@@ -53,12 +52,12 @@ export default function App() {
         android: `file://${response.realPath}`,
       });
 
-      // setLoading(true);
+      // // setLoading(true);
       // const res = await getResultImage(filePath);
-      // setLoading(false);
+      // // setLoading(false);
       // setresultImage(res);
 
-      const { corners, width, height } = await detectFile(filePath);
+      const { corners, width, height } = await detectFile(filePath, true);
       setLoading(false);
       const rectangle = {
         topLeft: corners.TOP_LEFT,
@@ -78,7 +77,8 @@ export default function App() {
   const crop = async () => {
     // console.log('loading');
     // const res = await customCrop.current.crop(100);
-    const res = await RNDDM.resizeImage(responseImg.realPath, { width: 595 });
+    // const res = await RNDDM.resizeImage(responseImg.realPath, { width: 595 });
+    const res = await RNDDM.cleanText(responseImg.realPath);
     // let res = await FilterImage.SharpenImage(responseImg.realPath, 1.5);
     // const uri = await CompresImage.compress(responseImg.realPath, {
     //   compressionMethod: 'auto',
@@ -90,11 +90,11 @@ export default function App() {
     //   responseImg.realPath,
     //   false
     // );
-    // console.log('end', res);
-    Image.getSize(res.uri, (w, h) => {
-      // console.log({ w, h });
-    });
-    setResultCrop(res.uri);
+    console.log('end', res);
+    // Image.getSize(res.uri, (w, h) => {
+    //   // console.log({ w, h });
+    // });
+    setResultCrop(res.image);
   };
 
   const updateImage = (res) => {

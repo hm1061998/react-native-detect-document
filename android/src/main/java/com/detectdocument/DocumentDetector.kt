@@ -19,6 +19,11 @@ import org.opencv.core.Scalar
 import org.opencv.core.Size
 import org.opencv.imgproc.Imgproc
 
+import android.widget.Toast
+import android.app.Activity
+import kotlin.math.pow
+import kotlin.math.sqrt
+
 /**
  * This class uses OpenCV to find document corners.
  *
@@ -31,7 +36,7 @@ class DocumentDetector() {
      * @param image a photo with a document
      * @return a list with document corners (top left, top right, bottom right, bottom left)
      */
-    fun findDocumentCorners(photo: Bitmap): List<Point>? {
+    fun findDocumentCorners(photo: Bitmap, isCard: Boolean): List<Point>? {
         // convert bitmap to OpenCV matrix
         val mat = Mat()
         val resized = Mat()
@@ -52,7 +57,7 @@ class DocumentDetector() {
 
         var documentCorners: List<Point>? =
             imageSplitByColorChannel
-                .mapNotNull { findCorners(it) }
+                .mapNotNull { findCorners(it,isCard) }
                 .maxByOrNull { Imgproc.contourArea(it) }
                 ?.toList()
                 ?.map {
@@ -106,13 +111,64 @@ class DocumentDetector() {
             ?.flatten()
     }
 
+    // fun findDocumentCorners(photo: Bitmap): List<Point>? {
+    //     // convert bitmap to OpenCV matrix
+    //     val mat = Mat()
+    //     val resized = Mat()
+    //     val output = Mat()
+    //     Utils.bitmapToMat(photo, mat)
+    //     // Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGB2BGR)
+    //     // shrink photo to make it easier to find document corners
+    //     val shrunkImageHeight = 500.0
+    //     Imgproc.resize(
+    //         mat,
+    //         resized,
+    //         Size(shrunkImageHeight * photo.width / photo.height, shrunkImageHeight)
+    //     )
+
+
+    //     var documentCorners: List<Point>?  =
+    //             findCornersVer2(resized)?.toList()?.map {
+    //                 Point(
+    //                     it.x * photo.height / shrunkImageHeight,
+    //                     it.y * photo.height / shrunkImageHeight
+    //                 )
+    //             }
+
+    //         documentCorners =
+    //             documentCorners
+    //                 ?.sortedBy { it.y }
+    //                 ?.chunked(2)
+    //                 ?.map { it.sortedBy { point -> point.x } }
+    //                 ?.flatten()
+
+    //         if (documentCorners.isNullOrEmpty()) {
+    //             return documentCorners
+    //         } else {
+    //             val ratio = photo.height.toDouble() / 500.0
+    //             val borderSize = 10.0 * ratio
+    //             val (topLeft, topRight, bottomLeft, bottomRight) = documentCorners
+
+    //             return listOf(
+    //                 Point(topLeft.x - borderSize, topLeft.y - borderSize)
+    //                     .calcPoint(photo.width.toDouble(), photo.height.toDouble()),
+    //                 Point(topRight.x + borderSize / 2, topRight.y - borderSize)
+    //                     .calcPoint(photo.width.toDouble(), photo.height.toDouble()),
+    //                 Point(bottomLeft.x - borderSize, bottomLeft.y + borderSize / 2)
+    //                     .calcPoint(photo.width.toDouble(), photo.height.toDouble()),
+    //                 Point(bottomRight.x + borderSize / 2, bottomRight.y)
+    //                     .calcPoint(photo.width.toDouble(), photo.height.toDouble())
+    //             )
+    //         }
+    // }
+
     /**
      * take an image matrix with a document, and find the document's corners
      *
      * @param image a photo with a document in matrix format (only 1 color space)
      * @return a matrix with document corners or null if we can't find corners
      */
-    private fun findCorners(image: Mat): MatOfPoint? {
+    private fun findCorners(image: Mat, isCard: Boolean): MatOfPoint? {
         val outputImage = Mat()
         // blur image to help remove noise
         Imgproc.GaussianBlur(image, outputImage, Size(5.0, 5.0), 0.0)
@@ -143,6 +199,11 @@ class DocumentDetector() {
             Imgproc.RETR_LIST,
             Imgproc.CHAIN_APPROX_SIMPLE
         )
+
+        val height = outputImage.height()
+        val width = outputImage.width()
+        val MAX_COUNTOUR_AREA = (width ) * (height )
+        val minLimitArea = if(isCard) 10000 else (MAX_COUNTOUR_AREA / 2)
         // approximate outlines using polygons
         var approxContours =
             contours.map {
@@ -162,7 +223,9 @@ class DocumentDetector() {
         // of the photo. Remove polygons that aren't convex since a document can't be convex.
         approxContours =
             approxContours.filter {
-                it.height() == 4 && Imgproc.contourArea(it) > 10000 && Imgproc.isContourConvex(it)
+                it.height() == 4 
+                && Imgproc.contourArea(it) > minLimitArea 
+                && Imgproc.isContourConvex(it) 
             }
         // Once we have all large, convex, 4-sided polygons find and return the 1 with the
         // largest area
@@ -262,11 +325,11 @@ class DocumentDetector() {
 
         val dataList: MutableList<MatOfPoint?> = mutableListOf()
         val contour = contours2.maxByOrNull { Imgproc.contourArea(it) }
-        dataList.add(contour)
+        // dataList.add(contour)
         //   Imgproc.drawContours(new2, dataList, -1, Scalar(0.0, 255.0, 0.0), 0)
         //   Tạo hình chữ nhật
 
-        if (contour != null) {
+        if (contour != null && Imgproc.contourArea(contour) < (MAX_COUNTOUR_AREA / 4)) {
             val dst = MatOfPoint2f()
             contour?.convertTo(dst, CvType.CV_32F)
 
@@ -329,7 +392,7 @@ class DocumentDetector() {
     //   // blur image to help remove noise
     //   Imgproc.GaussianBlur(gray, blur, Size(5.0, 5.0), 0.0)
 
-    //   Core.copyMakeBorder(blur, blur, 5, 5, 5, 5, Core.BORDER_CONSTANT)
+    //   Core.copyMakeBorder(blur, blur, 3, 3, 3, 3, Core.BORDER_CONSTANT)
     //   // detect the document's border using the Canny edge detection algorithm
     //   Imgproc.Canny(blur, candy, 20.0, 200.0,3)
     //   Imgproc.dilate(
@@ -351,6 +414,7 @@ class DocumentDetector() {
     //     val pt2 =
     //       Point(Math.round(x0 - 1000.0 * -b).toDouble(), Math.round(y0 - 1000.0 * a).toDouble())
 
+   
     //     Imgproc.line(newLine, pt1, pt2, Scalar(255.0, 0.0, 0.0), 1, 8)
 
     //   }
@@ -367,11 +431,10 @@ class DocumentDetector() {
 
     //   val height = candy.height()
     //   val width = candy.width()
-    //   val MAX_COUNTOUR_AREA = (width - 10) * (height - 10)
+    //   val MAX_COUNTOUR_AREA = (width - 6) * (height - 6)
 
     //   approxContours = approxContours.filter {
-    //     it.height() > 2 && Imgproc.contourArea(it) < MAX_COUNTOUR_AREA && Imgproc.contourArea(it)
-    // > 10000
+    //     it.height() > 2 && Imgproc.contourArea(it) < MAX_COUNTOUR_AREA && Imgproc.contourArea(it) > 10000
     //   }
 
     //   val new = Mat.ones(candy.size(), CvType.CV_8U)
@@ -383,7 +446,7 @@ class DocumentDetector() {
     //   var contours2 = findContours(new, true)
     //   contours2 = contours2.filter {
     //     it.height() == 4 && Imgproc.contourArea(it) < MAX_COUNTOUR_AREA &&
-    // Imgproc.contourArea(it) > 10000 && Imgproc.isContourConvex(
+    //   Imgproc.contourArea(it) > 10000 && Imgproc.isContourConvex(
     //       it
     //     )
     //   }
@@ -420,8 +483,22 @@ class DocumentDetector() {
         return bitmap.toBase64(100)
     }
 
+
+    private fun euclideanDistance(a: Point, b: Point): Double {
+        var distance = 0.0
+        try {
+            if (a != null && b != null) {
+                val xDiff = a.x - b.x
+                val yDiff = a.y - b.y
+                distance = sqrt(xDiff.pow(2) + yDiff.pow(2))
+            }
+        } catch (e: Exception) {
+            // System.err.println("Something went wrong in euclideanDistance function in ${Utility::class.java} ${e.message}")
+        }
+        return distance
+    }
     //  //test processing image
-    fun findDocument(image: String): WritableMap {
+    fun findDocument(image: String, activity: Activity): WritableMap {
         val result: WritableMap = WritableNativeMap()
         val photo: Bitmap = ImageUtil().getImageFromFilePath(image.replace("file://", ""))
         val mat = Mat()
@@ -485,7 +562,15 @@ class DocumentDetector() {
                     Math.round(x0 - 1000.0 * -b).toDouble(),
                     Math.round(y0 - 1000.0 * a).toDouble()
                 )
+
+          val distance = euclideanDistance(pt1, pt2)
+          // Toast.makeText(activity.getApplicationContext(), "distance: ${distance}", Toast.LENGTH_LONG).show()
+
+          // if(distance > 2000){
             Imgproc.line(newLine, pt1, pt2, Scalar(255.0, 0.0, 0.0), 1, 8)
+          // }
+
+          
         }
 
         Imgproc.Canny(newLine, newLine, 50.0, 200.0, 3)
@@ -535,7 +620,7 @@ class DocumentDetector() {
         val base64OriginImage = convertMatToBase64(orig)
         val base64OBlurImage = convertMatToBase64(blur)
         val base64OCandy = convertMatToBase64(newLine)
-        val base64ONewImage = convertMatToBase64(resized)
+        val base64ONewImage = convertMatToBase64(new2)
 
         result.putString("image", base64OriginImage)
         result.putString("blur", base64OBlurImage)

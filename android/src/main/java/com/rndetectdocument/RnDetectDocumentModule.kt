@@ -19,6 +19,8 @@ import com.facebook.react.bridge.WritableMap
 import com.facebook.react.bridge.WritableNativeMap
 import org.opencv.core.Point
 
+
+
 class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
     private val cropperOffsetWhenCornersNotFound = 100.0
@@ -37,7 +39,10 @@ class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
         } catch (exception: Exception) {
             promise.reject("error starting OpenCV: ${exception.message}")
         }
-        val result = DocumentDetector().findDocument(originalPhotoPath.replace("file://", ""))
+
+        val activity: Activity = currentActivity as Activity
+
+        val result = DocumentDetector().findDocument(originalPhotoPath.replace("file://", ""),activity)
 
         promise.resolve(result)
     }
@@ -123,7 +128,7 @@ class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun detectFile(originalPhotoPath: String, promise: Promise) {
+    fun detectFile(originalPhotoPath: String, isCard: Boolean, promise: Promise) {
         try {
             // load OpenCV
             System.loadLibrary("opencv_java4")
@@ -134,7 +139,7 @@ class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
         val photo: Bitmap =
             ImageUtil().getImageFromFilePath(originalPhotoPath.replace("file://", ""))
 
-        val (topLeft, topRight, bottomLeft, bottomRight) = getDocumentCorners(photo)
+        val (topLeft, topRight, bottomLeft, bottomRight) = getDocumentCorners(photo, isCard)
         val corners = Quad(topLeft, topRight, bottomRight, bottomLeft)
 
         val info: WritableMap = WritableNativeMap()
@@ -153,8 +158,8 @@ class RnDetectDocumentModule(reactContext: ReactApplicationContext) :
         promise.resolve(info)
     }
 
-    private fun getDocumentCorners(photo: Bitmap): List<Point> {
-        val cornerPoints: List<Point>? = DocumentDetector().findDocumentCorners(photo)
+    private fun getDocumentCorners(photo: Bitmap, isCard: Boolean): List<Point> {
+        val cornerPoints: List<Point>? = DocumentDetector().findDocumentCorners(photo, isCard)
 
         // if cornerPoints is null then default the corners to the photo bounds with a margin
 

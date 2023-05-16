@@ -1,6 +1,13 @@
 import * as React from 'react';
 import { Dimensions, Image, View, StyleSheet } from 'react-native';
-import Svg, { Polygon } from 'react-native-svg';
+import Svg, {
+  Polygon,
+  // Defs,
+  // Mask,
+  // Rect,
+  // Path,
+  // ClipPath,
+} from 'react-native-svg';
 import Animated, {
   useAnimatedProps,
   AnimateProps,
@@ -25,6 +32,10 @@ import type {
 const AnimatedPolygon = Animated.createAnimatedComponent(
   Polygon
 ) as React.ComponentClass<Animated.AnimateProps<PolygonProps>, any>;
+
+const AnimatedSvg = Animated.createAnimatedComponent(Svg);
+// const AnimatedClipPath = Animated.createAnimatedComponent(ClipPath);
+// const AnimatedRect = Animated.createAnimatedComponent(Rect);
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -93,6 +104,7 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
     const topRightPrev = React.useRef({ x: viewWidth, y: 0 });
     const bottomLeftPrev = React.useRef({ x: 0, y: viewHeight });
     const bottomRightPrev = React.useRef({ x: viewWidth, y: viewHeight });
+    const [_, setRender] = React.useState(false);
 
     //calc points of document on screen
     const optionsView = { viewWidth, viewHeight, width, height };
@@ -181,6 +193,9 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
         bottomRight: viewCoordinatesToImageCoordinates(bottomRight),
       };
 
+      if (key === 'finish') {
+        setRender((prev) => !prev);
+      }
       onHander?.(key, coordinates);
     };
 
@@ -235,10 +250,8 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
         points: animatedPointsValues.map((item) => {
           return [item.x.value, item.y.value];
         }),
-        // fillRule: 'evenodd',
-        clipPath: 'url(#clip)',
       }),
-      []
+      [animatedPointsValues]
     );
 
     const handleColorStyle = handlerColor ? { borderColor: handlerColor } : {};
@@ -251,13 +264,39 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
             resizeMode="cover"
             source={{ uri: initialImage }}
           />
-          <Svg
+          <AnimatedSvg
             height={viewHeight}
             width={viewWidth}
             viewBox={`0 0 ${viewWidth} ${viewHeight}`}
-            style={{ position: 'absolute', left: 0, top: 0 }}
-            preserveAspectRatio="none"
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              backgroundColor: 'transparent',
+            }}
           >
+            {/* <Defs>
+              <AnimatedClipPath id="clip1">
+                <Rect x="0" y="0" width="100%" height="100%" />
+                <AnimatedPolygon
+                  fill={overlayColor || 'blue'}
+                  fillOpacity={overlayOpacity || 0.5}
+                  stroke={overlayStrokeColor || 'blue'}
+                  strokeWidth={overlayStrokeWidth || 1}
+                  animatedProps={animatedProps}
+                />
+              </AnimatedClipPath>
+            </Defs>
+            <AnimatedRect
+              x="0"
+              y="0"
+              width="100%"
+              height="100%"
+              fill="black"
+              opacity="0.7"
+              clipPath="url(#clip1)"
+            /> */}
+
             <AnimatedPolygon
               fill={overlayColor || 'blue'}
               fillOpacity={overlayOpacity || 0.5}
@@ -265,7 +304,7 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
               strokeWidth={overlayStrokeWidth || 1}
               animatedProps={animatedProps}
             />
-          </Svg>
+          </AnimatedSvg>
 
           <PanGestureHandler
             enabled={enablePanStrict}
@@ -273,13 +312,6 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
           >
             <Animated.View style={[s.handler, topLeftStyle]}>
               <View style={[s.handlerI, handleColorStyle]} />
-              {/* <View
-                style={[
-                  s.handlerRound,
-                  { left: 31, top: 31 },
-                  handleColorStyle,
-                ]}
-              /> */}
             </Animated.View>
           </PanGestureHandler>
 
@@ -289,13 +321,6 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
           >
             <Animated.View style={[s.handler, topRightStyle]}>
               <View style={[s.handlerI, handleColorStyle]} />
-              {/* <View
-                style={[
-                  s.handlerRound,
-                  { right: 31, top: 31 },
-                  handleColorStyle,
-                ]}
-              /> */}
             </Animated.View>
           </PanGestureHandler>
 
@@ -305,13 +330,6 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
           >
             <Animated.View style={[s.handler, bottomLeftStyle]}>
               <View style={[s.handlerI, handleColorStyle]} />
-              {/* <View
-                style={[
-                  s.handlerRound,
-                  { left: 31, bottom: 31 },
-                  handleColorStyle,
-                ]}
-              /> */}
             </Animated.View>
           </PanGestureHandler>
 
@@ -321,13 +339,6 @@ const Cropper = React.forwardRef<CropperHandle, CropperProps>(
           >
             <Animated.View style={[s.handler, bottomRightStyle]}>
               <View style={[s.handlerI, handleColorStyle]} />
-              {/* <View
-                style={[
-                  s.handlerRound,
-                  { right: 31, bottom: 31 },
-                  handleColorStyle,
-                ]}
-              /> */}
             </Animated.View>
           </PanGestureHandler>
         </View>
